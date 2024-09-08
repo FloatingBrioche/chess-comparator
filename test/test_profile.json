@@ -1,0 +1,18 @@
+{
+    "avatar": "https://images.chesscomfiles.com/uploads/v1/user/1591662.fe23240a.200x200o.fffe65c90257.jpeg",
+    "player_id": 1591662,
+    "@id": "https://api.chess.com/pub/player/aporian",
+    "url": "https://www.chess.com/member/Aporian",
+    "name": "Martin C.",
+    "username": "aporian",
+    "followers": 4,
+    "country": "https://api.chess.com/pub/country/XE",
+    "location": "Manchester",
+    "last_online": 1725456394,
+    "joined": 1226457939,
+    "status": "basic",
+    "is_streamer": false,
+    "verified": false,
+    "league": "Bronze",
+    "streaming_platforms": []
+}
