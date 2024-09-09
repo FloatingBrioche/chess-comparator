@@ -23,14 +23,25 @@ class TestCurrentVBest:
         result = get_current_v_best(stats)
         assert isinstance(result, pd.DataFrame)
 
-    def test_data_frame_has_expected_cols(self, stats):
+    @pytest.mark.it("Df has 'current' and 'best' as column names")
+    def test_data_frame_has_expected_col_names(self, stats):
         df = get_current_v_best(stats)
         expected_cols = [
-            "chess_daily",
-            "chess960_daily",
-            "chess_rapid",
-            "chess_bullet",
-            "chess_blitz",
+            "current",
+            "best"   
         ]
         output_cols = df.columns.to_list()
         assert expected_cols == output_cols
+    
+    @pytest.mark.it("Df has game types as indices")
+    def test_data_frame_has_expected_row_names(self, stats):
+        df = get_current_v_best(stats)
+        expected_rows = [
+            "daily",
+            "chess960_daily",
+            "rapid",
+            "bullet",
+            "blitz"
+        ]
+        output_rows = df.index.to_list()
+        assert expected_rows == output_rows
