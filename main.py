@@ -1,7 +1,7 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 from request_helpers import get_profile, get_stats
-from data_helpers import get_current_self, get_best_self
+from data_helpers import get_current_v_best
 
 st.title("Chess.com Comparator")
 
@@ -35,5 +35,6 @@ if username:
 
 if comparison == "My best self":
     st.write("Alright then!")
-    current_self = get_current_self(user_stats)
-    best_self = get_best_self(user_stats)
+    current_v_best_df = get_current_v_best(user_stats)
+    cols = current_v_best_df.columns.to_list()
+    st.line_chart(current_v_best_df, color=["#FF0000", "#0000FF"])
