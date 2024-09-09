@@ -6,14 +6,14 @@ from data_helpers import get_current_v_best
 
 @pytest.fixture()
 def profile():
-    with open("test/test_profile.json", "r") as file:
+    with open("test/test_data/test_profile.json", "r") as file:
         profile = load(file)
     return profile
 
 
 @pytest.fixture()
 def stats():
-    with open("test/test_stats.json", "r") as file:
+    with open("test/test_data/test_stats.json", "r") as file:
         stats = load(file)
     return stats
 
