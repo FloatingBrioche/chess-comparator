@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from json import load
-from data_helpers import get_current_v_best, get_user_v_other
+from data_helpers import get_current_v_best, get_user_v_other, expand_data
 
 
 @pytest.fixture()
@@ -23,6 +23,14 @@ def other_stats():
     with open("test/test_data/test_other_stats.json", "r") as file:
         other_stats = load(file)
     return other_stats
+
+
+@pytest.fixture()
+def u_vs_oth_df(user_stats, other_stats):
+    u_vs_oth_data_frame = get_user_v_other(
+        {"Mazza": user_stats}, {"Cazza": other_stats}
+    )
+    return u_vs_oth_data_frame
 
 
 class TestCurrentVBest:
@@ -81,7 +89,7 @@ class TestUserVOther:
         output_rows = df.index.to_list()
         assert set(expected_rows) == set(output_rows)
 
-    @pytest.mark.it("Df populates rows with expected data from passed dictionaries")
+    @pytest.mark.it("Df populates rows with expected data from passed dicts")
     def test_row_data(self, user_stats, other_stats):
         df = get_user_v_other({"Mazza": user_stats}, {"Cazza": other_stats})
         expected_values = {
@@ -91,3 +99,22 @@ class TestUserVOther:
         }
         for k, v in expected_values.items():
             assert df.loc[k].tolist() == v
+
+
+class TestExpandData:
+    def test_returns_data_frame(self, u_vs_oth_df):
+        output = expand_data(u_vs_oth_df)
+        print(u_vs_oth_df)
+        assert isinstance(output, pd.DataFrame)
+
+    def test_new_df_has_total_games_index(self, u_vs_oth_df):
+        df = expand_data(u_vs_oth_df)
+        assert "total_games" in df.index.to_list()
+
+    def test_new_df_has_new_indices(self, u_vs_oth_df):
+        df = expand_data(u_vs_oth_df)
+        indices = df.index.to_list()
+        assert "total_wins" in indices
+        assert "total_draws" in indices
+        assert "total_losses" in indices
+        assert "total_games" in indices
