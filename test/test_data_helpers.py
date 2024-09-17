@@ -104,7 +104,6 @@ class TestUserVOther:
 class TestExpandData:
     def test_returns_data_frame(self, u_vs_oth_df):
         output = expand_data(u_vs_oth_df)
-        print(u_vs_oth_df)
         assert isinstance(output, pd.DataFrame)
 
     def test_new_df_has_total_games_index(self, u_vs_oth_df):

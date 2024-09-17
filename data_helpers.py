@@ -53,21 +53,16 @@ def get_user_v_other(user: dict, other: dict) -> pd.DataFrame:
 
 
 def expand_data(df: pd.DataFrame) -> pd.DataFrame:
-    unwanted_labels = {"FIDE", "puzzle_rush", "puzzles_best_rating"}
     cols = df.columns.to_list()
     user, other = cols[0], cols[1]
+    unwanted_labels = {"FIDE", "puzzle_rush", "puzzles_best_rating"}
     current_labels = set(df.index.to_list())
     labels_to_exlcude = unwanted_labels.intersection(current_labels)
     filt_df = df.drop(labels_to_exlcude)
-    wins = filt_df.filter(like="wins", axis=0)
-    draws = filt_df.filter(like="draws", axis=0)
-    losses = filt_df.filter(like="losses", axis=0)
+    for s in ["wins", "draws", "losses"]:
+        temp_df = filt_df.filter(like=s, axis=0)
+        a, b = temp_df[user].sum(), temp_df[user].sum()
+        df.loc[f"total_{s}"] = [a, b]
     u_games, oth_games = filt_df[user].sum(), filt_df[other].sum()
-    u_wins, oth_wins = wins[user].sum(), wins[other].sum()
-    u_draws, oth_draws = draws[user].sum(), draws[other].sum()
-    u_losses, oth_losses = losses[user].sum(), losses[other].sum()
-    df.loc['total_wins'] = [u_wins, oth_wins]
-    df.loc['total_draws'] = [u_draws, oth_draws]
-    df.loc['total_losses'] = [u_losses, oth_losses]
     df.loc['total_games'] = [u_games, oth_games]
     return df
