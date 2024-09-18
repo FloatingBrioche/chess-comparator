@@ -61,8 +61,10 @@ def expand_data(df: pd.DataFrame) -> pd.DataFrame:
     filt_df = df.drop(labels_to_exlcude)
     for s in ["wins", "draws", "losses"]:
         temp_df = filt_df.filter(like=s, axis=0)
-        a, b = temp_df[user].sum(), temp_df[user].sum()
+        a, b = temp_df[user].sum(), temp_df[other].sum()
         df.loc[f"total_{s}"] = [a, b]
     u_games, oth_games = filt_df[user].sum(), filt_df[other].sum()
     df.loc['total_games'] = [u_games, oth_games]
     return df
+
+

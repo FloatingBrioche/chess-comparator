@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from json import load
-from data_helpers import get_current_v_best, get_user_v_other, expand_data
+from helpers.data_helpers import get_current_v_best, get_user_v_other, expand_data
 
 
 @pytest.fixture()
@@ -92,6 +92,7 @@ class TestUserVOther:
     @pytest.mark.it("Df populates rows with expected data from passed dicts")
     def test_row_data(self, user_stats, other_stats):
         df = get_user_v_other({"Mazza": user_stats}, {"Cazza": other_stats})
+        df.to_csv("test/test_data/u_vs_oth_df.csv")
         expected_values = {
             "puzzles_best_rating": [2593, 1808],
             "daily_best": [1584, 1278],
@@ -117,3 +118,6 @@ class TestExpandData:
         assert "total_draws" in indices
         assert "total_losses" in indices
         assert "total_games" in indices
+
+
+

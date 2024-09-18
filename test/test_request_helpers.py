@@ -1,5 +1,5 @@
 import pytest
-from request_helpers import get_profile, get_stats, get_gms
+from helpers.request_helpers import get_profile, get_stats, get_gms
 from unittest.mock import patch, Mock
 from requests.exceptions import RequestException
 
