@@ -1,8 +1,11 @@
 import streamlit as st
-from request_helpers import get_profile, get_stats
-from data_helpers import get_current_v_best, get_user_v_other
+import matplotlib.pyplot as plt
+from helpers.vars import vars
+from helpers.request_helpers import get_profile, get_stats
+from helpers.data_helpers import get_current_v_best, get_user_v_other, expand_data
+from helpers.plot_helpers import plot_pie
 
-st.title("Chess.com Comparator")
+st.title("Chess.com Stats Comparator")
 
 st.text_input("Enter your Chess.com username", key="username")
 
@@ -21,12 +24,7 @@ if username:
         st.write(f"Welcome, {user_profile['name']}!")
         comparison = st.selectbox(
             "Who would like to compare yourself with?",
-            [
-                "My best self",
-                "Another Chess.com user",
-                "A random grandmaster",
-                "A random person from my country",
-            ],
+            vars['select_options'],
             index=None,
         )
         user_stats = get_stats(username)
@@ -46,10 +44,30 @@ if comparison == "Another Chess.com user":
         st.write("That username isn't right. Do you want to try another?")
     else:
         st.write(
-            f"Alright, let's take a look at {user_profile['name']} vs. {other_user_profile['name']}!"
+            f"Alright, here's {user_profile['name']} vs. {other_user_profile['name']}!"
         )
         other_user_stats = get_stats(other_username)
-        get_user_v_other(
-            {f"{user_profile['name']}": user_stats},
-            {f"{other_user_profile['name']}": other_user_stats}
+        user_v_other_df = get_user_v_other(
+            {username: user_stats},
+            {other_username: other_user_stats},
         )
+        user_v_other_df = expand_data(user_v_other_df)
+
+        st.dataframe(user_v_other_df)
+        
+        u_col, oth_col = st.columns(2)
+
+        with u_col:
+            st.header(f"{user_profile['name']}")
+
+            u_pie = plot_pie(user_v_other_df, username, vars["totals"])
+            st.pyplot(u_pie.figure)
+
+
+        with oth_col:
+            st.header(f"{other_user_profile['name']}")
+
+            oth_pie = plot_pie(user_v_other_df, other_username, vars["totals"])
+            st.pyplot(oth_pie.figure)
+
+st.balloons()
