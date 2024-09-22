@@ -4,8 +4,6 @@ blitz_current,1012,798
 blitz_wins,192,287
 blitz_draws,10,28
 blitz_losses,191,288
-puzzles_best_rating,2593,1808
-puzzle_rush,47,11
 daily_best,1584,1278
 daily_current,1508,882
 daily_wins,120,26
@@ -16,3 +14,5 @@ rapid_current,1222,944
 rapid_wins,72,2111
 rapid_draws,3,176
 rapid_losses,80,2123
+puzzles,2593,1808
+puzzle_rush,47,11
