@@ -46,8 +46,8 @@ def get_user_v_other(user: dict, other: dict) -> pd.DataFrame:
             oth[metric] = oth_stats[metric]["best"]["score"]
 
         if metric == "tactics":
-            u["puzzles_best_rating"] = u_stats[metric]["highest"]["rating"]
-            oth["puzzles_best_rating"] = oth_stats[metric]["highest"]["rating"]
+            u["puzzles"] = u_stats[metric]["highest"]["rating"]
+            oth["puzzles"] = oth_stats[metric]["highest"]["rating"]
 
     return pd.DataFrame.from_dict(stats, orient="columns")
 
@@ -55,7 +55,7 @@ def get_user_v_other(user: dict, other: dict) -> pd.DataFrame:
 def expand_data(df: pd.DataFrame) -> pd.DataFrame:
     cols = df.columns.to_list()
     user, other = cols[0], cols[1]
-    unwanted_labels = {"FIDE", "puzzle_rush", "puzzles_best_rating"}
+    unwanted_labels = {"FIDE", "puzzle_rush", "puzzles"}
     current_labels = set(df.index.to_list())
     labels_to_exlcude = unwanted_labels.intersection(current_labels)
     filt_df = df.drop(labels_to_exlcude)

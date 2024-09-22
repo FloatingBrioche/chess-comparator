@@ -84,7 +84,7 @@ class TestUserVOther:
             "rapid_draws",
             "rapid_losses",
             "puzzle_rush",
-            "puzzles_best_rating",
+            "puzzles",
         ]
         output_rows = df.index.to_list()
         assert set(expected_rows) == set(output_rows)
@@ -94,7 +94,7 @@ class TestUserVOther:
         df = get_user_v_other({"Mazza": user_stats}, {"Cazza": other_stats})
         df.to_csv("test/test_data/u_vs_oth_df.csv")
         expected_values = {
-            "puzzles_best_rating": [2593, 1808],
+            "puzzles": [2593, 1808],
             "daily_best": [1584, 1278],
             "rapid_wins": [72, 2111],
         }
