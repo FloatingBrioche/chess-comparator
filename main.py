@@ -4,11 +4,19 @@ from helpers.request_helpers import (
     get_profile,
     get_stats,
     get_random_gm,
-    get_random_compatriot
+    get_random_compatriot,
 )
 from helpers.data_helpers import get_current_v_best, get_user_v_other, expand_data
 from helpers.plot_helpers import plot_pie
-from helpers.vars import blitz_indices, bullet_indices, daily_indices, rapid_indices, totals_indices, select_options, ratings_indices
+from helpers.vars import (
+    blitz_indices,
+    bullet_indices,
+    daily_indices,
+    rapid_indices,
+    totals_indices,
+    select_options,
+    ratings_indices,
+)
 
 st.title("Chess.com Stats Comparator")
 
@@ -26,7 +34,9 @@ if username:
     if user_profile is None:
         st.write("That username isn't right. Do you want to try another?")
     else:
-        u_name = user_profile['name'] if user_profile.get('name') != None else username
+        u_name = (
+            user_profile["name"] if user_profile.get("name") is not None else username
+        )
         st.write(f"Welcome, {u_name}!")
         country = user_profile["country"].split("/")[-1]
         comparison = st.selectbox(
@@ -57,10 +67,12 @@ if other_username:
     if other_user_profile is None:
         st.write("That username isn't right. Do you want to try another?")
     else:
-        o_name = other_user_profile['name'] if other_user_profile.get('name') != None else other_username
-        st.write(
-            f"Alright, here's {u_name} vs. {o_name}!"
+        o_name = (
+            other_user_profile["name"]
+            if other_user_profile.get("name") is not None
+            else other_username
         )
+        st.write(f"Alright, here's {u_name} vs. {o_name}!")
         other_user_stats = get_stats(other_username)
         user_v_other_df = get_user_v_other(
             {username: user_stats},
