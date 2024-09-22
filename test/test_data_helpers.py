@@ -26,11 +26,8 @@ def other_stats():
 
 
 @pytest.fixture()
-def u_vs_oth_df(user_stats, other_stats):
-    u_vs_oth_data_frame = get_user_v_other(
-        {"Mazza": user_stats}, {"Cazza": other_stats}
-    )
-    return u_vs_oth_data_frame
+def u_vs_oth_df():
+    return pd.read_csv("test/test_data/u_vs_oth_df.csv", index_col=0)
 
 
 class TestCurrentVBest:
@@ -92,7 +89,6 @@ class TestUserVOther:
     @pytest.mark.it("Df populates rows with expected data from passed dicts")
     def test_row_data(self, user_stats, other_stats):
         df = get_user_v_other({"Mazza": user_stats}, {"Cazza": other_stats})
-        df.to_csv("test/test_data/u_vs_oth_df.csv")
         expected_values = {
             "puzzles": [2593, 1808],
             "daily_best": [1584, 1278],
@@ -111,13 +107,33 @@ class TestExpandData:
         df = expand_data(u_vs_oth_df)
         assert "total_games" in df.index.to_list()
 
-    def test_new_df_has_new_indices(self, u_vs_oth_df):
+    def test_new_df_has_total_wins_draws_losses_indices(self, u_vs_oth_df):
         df = expand_data(u_vs_oth_df)
         indices = df.index.to_list()
         assert "total_wins" in indices
         assert "total_draws" in indices
         assert "total_losses" in indices
-        assert "total_games" in indices
 
+    def test_calculates_total_wins(self, u_vs_oth_df):
+        df = expand_data(u_vs_oth_df)
+        expected = [3, 3]
+        actual = df.loc["total_wins"].to_list()
+        assert actual == expected
 
+    def test_calculates_total_draws(self, u_vs_oth_df):
+        df = expand_data(u_vs_oth_df)
+        expected = [3, 3]
+        actual = df.loc["total_draws"].to_list()
+        assert actual == expected
 
+    def test_calculates_total_losses(self, u_vs_oth_df):
+        df = expand_data(u_vs_oth_df)
+        expected = [3, 3]
+        actual = df.loc["total_losses"].to_list()
+        assert actual == expected
+
+    def test_calculates_total_games(self, u_vs_oth_df):
+        df = expand_data(u_vs_oth_df)
+        expected = [9, 9]
+        actual = df.loc["total_games"].to_list()
+        assert actual == expected
