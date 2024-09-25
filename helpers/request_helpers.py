@@ -3,18 +3,7 @@ from requests.exceptions import RequestException
 from os.path import isfile
 from json import load, dump
 from random import choice
-import logging
-
-
-logging.basicConfig(
-    filename="logs/request-errors.log",
-    filemode="a",
-    level=logging.ERROR,
-    format="%(asctime)s - %(message)s",
-    datefmt="%d-%b-%Y %H:%M:%S"
-)
-
-logger = logging.getLogger()
+from helpers.loggers import request_logger
 
 
 headers = {"user-agent": "chess-comparator"}
@@ -46,7 +35,7 @@ def get_profile(username: str) -> dict | None:
             return None
 
     except RequestException as e:
-        logger.error(f"Request error: {e}")
+        request_logger.error(f"Request error: {e}")
 
 
 def get_stats(username: str) -> dict | None:
@@ -75,7 +64,7 @@ def get_stats(username: str) -> dict | None:
             return None
 
     except RequestException as e:
-        logger.error(f"Request error: {e}")
+        request_logger.error(f"Request error: {e}")
 
 
 def get_gms() -> list:
@@ -104,7 +93,7 @@ def get_gms() -> list:
             return None
 
     except RequestException as e:
-        logger.error(f"Request error: {e}")
+        request_logger.error(f"Request error: {e}")
 
 
 def get_compatriots(iso: str):
@@ -133,7 +122,7 @@ def get_compatriots(iso: str):
             return None
 
     except RequestException as e:
-        logger.error(f"Request error: {e}")    
+        request_logger.error(f"Request error: {e}")    
 
 
 def get_random_gm():
