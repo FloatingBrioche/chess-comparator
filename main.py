@@ -44,11 +44,12 @@ if username:
             select_options,
             index=None,
         )
-        user_stats = get_stats(username)
+        user_stats: dict = get_stats(username)
         st.divider()
 
 if comparison == "Myself":
-    st.write("Alright then!")
+    st.write("A wise choice. Comparison is the thief of joy, after all.")
+    st.write("Here are your best ever ratings compared with your current ratings.")
     current_v_best_df = get_current_v_best(user_stats)
     st.line_chart(current_v_best_df, color=["#FF0000", "#0000FF"])
 
@@ -57,10 +58,11 @@ if comparison == "Another Chess.com user":
     other_username = st.session_state.other_username
 
 if comparison == "A random grandmaster":
+    st.write("A bold choice. Let's see how you stack up against one of the greats.")
     other_username = get_random_gm()
 
 if comparison == "A random person from my country":
-    other_username = get_random_compatriot(country)
+        other_username = get_random_compatriot(country)
 
 if other_username:
     other_user_profile: dict | None = get_profile(other_username)
@@ -83,7 +85,7 @@ if other_username:
         u_col, oth_col = st.columns(2)
 
         with u_col:
-            st.header(f"{u_name}")
+            st.subheader(f"{u_name}")
 
             if "daily_wins" in indices:
                 u_daily_pie = plot_pie(user_v_other_df, username, daily_indices)
@@ -105,7 +107,7 @@ if other_username:
             st.pyplot(u_total_pie, clear_figure=True)
 
         with oth_col:
-            st.header(f"{o_name}")
+            st.subheader(f"{o_name}")
 
             if "daily_wins" in indices:
                 oth_daily_pie = plot_pie(user_v_other_df, other_username, daily_indices)
