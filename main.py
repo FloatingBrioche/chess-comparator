@@ -8,15 +8,7 @@ from helpers.request_helpers import (
 )
 from helpers.data_helpers import get_current_v_best, get_user_v_other, expand_data
 from helpers.plot_helpers import plot_pie
-from helpers.vars import (
-    blitz_indices,
-    bullet_indices,
-    daily_indices,
-    rapid_indices,
-    totals_indices,
-    select_options,
-    ratings_indices,
-)
+from helpers.vars import indices, select_options
 
 st.title("Chess.com Stats Comparator")
 
@@ -81,58 +73,58 @@ if other_username:
             {other_username: other_user_stats},
         )
         user_v_other_df = expand_data(user_v_other_df)
-        indices = user_v_other_df.index.to_list()
+        actual_indices = user_v_other_df.index.to_list()
         u_col, oth_col = st.columns(2)
 
         with u_col:
             st.subheader(f"{u_name}")
 
-            if "daily_wins" in indices:
-                u_daily_pie = plot_pie(user_v_other_df, username, daily_indices)
+            if "daily_wins" in actual_indices:
+                u_daily_pie = plot_pie(user_v_other_df, username, indices['daily'])
                 st.pyplot(u_daily_pie, clear_figure=True)
 
-            if "rapid_wins" in indices:
-                u_rapid_pie = plot_pie(user_v_other_df, username, rapid_indices)
+            if "rapid_wins" in actual_indices:
+                u_rapid_pie = plot_pie(user_v_other_df, username, indices['rapid'])
                 st.pyplot(u_rapid_pie, clear_figure=True)
 
-            if "blitz_wins" in indices:
-                u_blitz_pie = plot_pie(user_v_other_df, username, blitz_indices)
+            if "blitz_wins" in actual_indices:
+                u_blitz_pie = plot_pie(user_v_other_df, username, indices['blitz'])
                 st.pyplot(u_blitz_pie, clear_figure=True)
 
-            if "bullet_wins" in indices:
-                u_bullet_pie = plot_pie(user_v_other_df, username, bullet_indices)
+            if "bullet_wins" in actual_indices:
+                u_bullet_pie = plot_pie(user_v_other_df, username, indices['bullet'])
                 st.pyplot(u_bullet_pie, clear_figure=True)
 
-            u_total_pie = plot_pie(user_v_other_df, username, totals_indices)
+            u_total_pie = plot_pie(user_v_other_df, username, indices['totals'])
             st.pyplot(u_total_pie, clear_figure=True)
 
         with oth_col:
             st.subheader(f"{o_name}")
 
-            if "daily_wins" in indices:
-                oth_daily_pie = plot_pie(user_v_other_df, other_username, daily_indices)
+            if "daily_wins" in actual_indices:
+                oth_daily_pie = plot_pie(user_v_other_df, other_username, indices['daily'])
                 st.pyplot(oth_daily_pie, clear_figure=True)
 
-            if "rapid_wins" in indices:
-                oth_rapid_pie = plot_pie(user_v_other_df, other_username, rapid_indices)
+            if "rapid_wins" in actual_indices:
+                oth_rapid_pie = plot_pie(user_v_other_df, other_username, indices['rapid'])
                 st.pyplot(oth_rapid_pie, clear_figure=True)
 
-            if "blitz_wins" in indices:
-                oth_blitz_pie = plot_pie(user_v_other_df, other_username, blitz_indices)
+            if "blitz_wins" in actual_indices:
+                oth_blitz_pie = plot_pie(user_v_other_df, other_username, indices['blitz'])
                 st.pyplot(oth_blitz_pie, clear_figure=True)
 
-            if "bullet_wins" in indices:
+            if "bullet_wins" in actual_indices:
                 oth_bullet_pie = plot_pie(
-                    user_v_other_df, other_username, bullet_indices
+                    user_v_other_df, other_username, indices['bullet']
                 )
                 st.pyplot(oth_bullet_pie, clear_figure=True)
 
-            oth_total_pie = plot_pie(user_v_other_df, other_username, totals_indices)
+            oth_total_pie = plot_pie(user_v_other_df, other_username, indices['totals'])
             st.pyplot(oth_total_pie, clear_figure=True)
 
         st.divider()
 
-        st.bar_chart(user_v_other_df.filter(items=ratings_indices, axis=0), stack=False)
+        st.bar_chart(user_v_other_df.filter(items=indices['ratings'], axis=0), stack=False)
         st.dataframe(user_v_other_df)
 
 st.balloons()

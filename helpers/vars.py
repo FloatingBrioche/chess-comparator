@@ -1,10 +1,10 @@
-blitz_indices = ["blitz_wins", "blitz_draws", "blitz_losses"]
-bullet_indices = ["bullet_wins", "bullet_draws", "bullet_losses"]
-daily_indices = ["daily_wins", "daily_draws", "daily_losses"]
-rapid_indices = ["rapid_wins", "rapid_draws", "rapid_losses"]
-totals_indices = ["total_wins", "total_draws", "total_losses"]
-
-ratings_indices = [
+indices = {
+    'blitz': ["blitz_wins", "blitz_draws", "blitz_losses"],
+    'bullet': ["bullet_wins", "bullet_draws", "bullet_losses"],
+    'daily': ["daily_wins", "daily_draws", "daily_losses"],
+    'rapid': ["rapid_wins", "rapid_draws", "rapid_losses"],
+    'totals': ["total_wins", "total_draws", "total_losses"],
+    'ratings': [
         "daily_best",
         "daily_current",
         "rapid_best",
@@ -16,6 +16,7 @@ ratings_indices = [
         "FIDE",
         "puzzles_best_rating"
     ]
+}
 
 select_options = [
         "Myself",
