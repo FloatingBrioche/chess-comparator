@@ -1,7 +1,12 @@
 import pytest
 import pandas as pd
 from json import load
-from helpers.data_helpers import get_current_v_best, get_user_v_other, expand_data
+from helpers.data_helpers import (
+    get_current_v_best,
+    get_user_v_other,
+    expand_data,
+    get_head_to_head
+)
 
 
 @pytest.fixture()
@@ -28,6 +33,11 @@ def other_stats():
 @pytest.fixture()
 def u_vs_oth_df():
     return pd.read_csv("test/test_data/u_vs_oth_df.csv", index_col=0)
+
+
+@pytest.fixture()
+def expanded_df():
+    return pd.read_csv("test/test_data/expanded_df.csv", index_col=0)
 
 
 class TestCurrentVBest:
@@ -137,3 +147,16 @@ class TestExpandData:
         expected = [9, 9]
         actual = df.loc["total_games"].to_list()
         assert actual == expected
+
+
+class TestGetHeadToHead:
+    def test_returns_dataframe(self, expanded_df):
+        output = get_head_to_head(expanded_df)
+        print(output)
+        assert isinstance(output, pd.DataFrame)
+
+    @pytest.mark.it("Df has passed user and other names as column names")
+    def test_data_frame_has_expected_col_names(self, expanded_df):
+        df = get_head_to_head(expanded_df)
+        expected_cols = ["Mazza", "Cazza", "Your points", "Their points"]
+        assert expected_cols == df.columns.to_list()

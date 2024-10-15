@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from helpers.loggers import data_logger
 
 
@@ -101,3 +102,53 @@ def expand_data(df: pd.DataFrame) -> pd.DataFrame:
     except (KeyError, TypeError) as e:
         data_logger.error(f"Error in {expand_data.__name__}: {str(e)}")
         raise e
+
+
+def get_head_to_head(df: pd.DataFrame) -> pd.DataFrame:
+    u_points = []
+    o_points = []
+    
+    for row in df.iterrows():
+        index = row[0]
+        values = row[1].tolist()
+        pos_metric = any([
+            "wins" in index, 
+            "current" in index, 
+            "best" in index,
+            "puzzle" in index,
+            "FIDE" in index
+            ])
+        neg_metric = "losses" in index
+        
+        if pos_metric:
+            if values[0] > values[1]:
+                u_points.append(1)
+                o_points.append(0)
+            elif values[0] < values[1]:
+                u_points.append(0)
+                o_points.append(1)
+            else:
+                u_points.append(0)
+                o_points.append(0)
+        
+        elif neg_metric:
+            if values[0] < values[1]:
+                u_points.append(1)
+                o_points.append(0)
+            elif values[0] > values[1]:
+                u_points.append(0)
+                o_points.append(1)
+            else:
+                u_points.append(0)
+                o_points.append(0)
+        
+        else:
+            u_points.append(0)
+            o_points.append(0)
+    
+    df['Your points'] = u_points
+    df['Their points'] = o_points
+    df.loc[' '] = [' ', ' ', ' ', ' ']
+    df.loc["Total points"] = [' ', ' ', sum(u_points), sum(o_points)]
+    
+    return df
