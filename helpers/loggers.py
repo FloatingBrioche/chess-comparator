@@ -11,3 +11,5 @@ logging.basicConfig(
 data_logger = logging.getLogger("Data logger")
 
 request_logger = logging.getLogger("Request logger")
+
+plot_logger = logging.getLogger("Plot logger")
