@@ -48,7 +48,7 @@ if comparison == "Myself":
     st.write("A wise choice. Comparison is the thief of joy, after all.")
     st.write("Here are your best ever ratings compared with your current ratings.")
     current_v_best_df = get_current_v_best(user_stats)
-    st.line_chart(current_v_best_df, color=["#FF0000", "#0000FF"])
+    st.bar_chart(current_v_best_df, color=["#FF0000", "#0000FF"], stack=False)
 
 if comparison == "Another Chess.com user":
     st.text_input("Please enter their Chess.com username", key="other_username")
@@ -142,4 +142,25 @@ if other_username:
 
         st.dataframe(get_head_to_head(user_v_other_df))
 
-st.balloons()
+
+
+st.divider()
+
+# if u_wins:
+
+#     st.balloons()
+#     st.divider()
+# elif o_wins:
+#     st.snow()
+#     st.divider()
+
+
+st.markdown(
+    '''
+    ##### :balloon: :rainbow[Thanks for visiting!] :balloon:
+
+    If you have any suggestions or comments about the app,  
+    feel free to get in touch with me on [LinkedIn](https://www.linkedin.com/in/martincolbourne/) or [GitHub](https://github.com/FloatingBrioche/).
+    '''
+    )
+
