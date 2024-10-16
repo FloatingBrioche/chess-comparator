@@ -22,6 +22,7 @@ def get_current_v_best(u_stats) -> pd.DataFrame:
         data_logger.error(f"Type error in {get_current_v_best.__name__}: {str(e)}, key = {k}, value = {v}")
         raise e
 
+
 def get_user_v_other(user: dict, other: dict) -> pd.DataFrame:
     try:
         # Acceses usernames for dict keys and create new keys in stats dict
