@@ -15,16 +15,19 @@ from helpers.data_helpers import (
 from helpers.plot_helpers import plot_pie
 from helpers.vars import indices, select_options
 
-st.title("Chess.com Stats Comparator")
+comparison = None
+other_username = None
 
-st.text_input("Enter your Chess.com username", key="username")
+st.title(":chess_pawn: :rainbow[Chess.com Stats Comparator] :chess_pawn:")
+
+st.write("Welcome to the Chess.com Stats Comparator, an app that let's you compare your stats against those of other users through visualisations and tables.")
+st.text_input("Enter your Chess.com username to get started.", key="username")
 
 username = st.session_state.username
 
 user_profile: dict | None = get_profile(username)
 
-comparison = None
-other_username = None
+
 st.divider()
 
 if username:
@@ -155,12 +158,13 @@ st.divider()
 #     st.divider()
 
 
+
 st.markdown(
     '''
     ##### :balloon: :rainbow[Thanks for visiting!] :balloon:
 
     If you have any suggestions or comments about the app,  
-    feel free to get in touch with me on [LinkedIn](https://www.linkedin.com/in/martincolbourne/) or [GitHub](https://github.com/FloatingBrioche/).
+    feel free to get in touch with me on [LinkedIn](https://www.linkedin.com/in/martincolbourne/) or check out the repo on my [GitHub](https://github.com/FloatingBrioche/).
     '''
     )
 
