@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from helpers.loggers import data_logger
 from helpers.request_helpers import get_profile, get_stats
 
@@ -8,11 +7,12 @@ class ChessUser:
     def __init__(self, username):
         self.username = username
         self.profile = get_profile(username)
-        self.name = self.profile["name"] if self.profile.get("name") is not None else username
+        self.name = None
         self.stats = None
         self.available_metrics = None
 
     def add_stats(self) -> None:
+        self.name = self.profile["name"] if self.profile.get("name") is not None else self.username
         self.stats = get_stats(self.username)
         self.available_metrics = set(self.stats.keys())
 
