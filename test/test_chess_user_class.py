@@ -11,20 +11,17 @@ def profile():
         profile = load(file)
     return profile
 
-
 @pytest.fixture()
 def aporian_stats():
     with open("test/test_data/test_stats.json", "r") as file:
         user_stats = load(file)
     return user_stats
 
-
 @pytest.fixture()
 def other_stats():
     with open("test/test_data/test_other_stats.json", "r") as file:
         other_stats = load(file)
     return other_stats
-
 
 @pytest.fixture(scope="function")
 @patch("helpers.classes.get_profile")
@@ -66,6 +63,10 @@ class TestInstantiationAttributes:
     def test_instantiates_with_stats_none(self, TestAporian):
         assert TestAporian.stats is None
 
+    @pytest.mark.it("Instantiates with country attribute as None")
+    def test_instantiates_with_stats_none(self, TestAporian):
+        assert TestAporian.country is None
+
     @pytest.mark.it("Instantiates with available_metrics attribute as None")
     def test_instantiates_with_available_metrics_none(self, TestAporian):
         assert TestAporian.available_metrics is None
@@ -96,6 +97,15 @@ class TestAddStats:
         TestAporian.add_stats()
         assert isinstance(TestAporian.stats, dict)
 
+    @pytest.mark.it("Updates country attribute with country code string")
+    @patch("helpers.classes.get_stats")
+    def test_updates_stats(self, mock_get_stats, TestAporian, aporian_stats):
+        mock_get_stats.return_value = aporian_stats
+        assert TestAporian.country is None
+        TestAporian.add_stats()
+        assert isinstance(TestAporian.country, str)
+        assert TestAporian.country == "XE"
+
     @pytest.mark.it("Updates available_metrics attribute with set")
     @patch("helpers.classes.get_stats")
     def test_updates_stats(self, mock_get_stats, TestAporian, aporian_stats):
@@ -122,7 +132,6 @@ class TestAddStats:
             expected_cols = ["current", "best"]
             output_cols = df.columns.to_list()
             assert expected_cols == output_cols
-
 
         @pytest.mark.it("Df has game types as indices")
         def test_data_frame_has_expected_row_names(self, TestAporianStatsAdded):

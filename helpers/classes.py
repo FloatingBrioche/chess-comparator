@@ -10,11 +10,13 @@ class ChessUser:
         self.name = None
         self.stats = None
         self.available_metrics = None
+        self.country = None
 
     def add_stats(self) -> None:
         self.name = self.profile["name"] if self.profile.get("name") is not None else self.username
         self.stats = get_stats(self.username)
         self.available_metrics = set(self.stats.keys())
+        self.country = self.profile["country"].split("/")[-1]
 
     def get_current_v_best(self) -> pd.DataFrame:
         try:
@@ -43,7 +45,6 @@ class Comparison:
         self.comparable_metrics = user.available_metrics & other.available_metrics
         self.df = None
         self.create_df(self)
-
 
     def create_df(self):
         try:
