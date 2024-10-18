@@ -7,21 +7,17 @@ from helpers.classes import ChessUser
 
 @pytest.fixture()
 def profile():
-    with open("test/test_data/test_profile.json", "r") as file:
+    with open("test/test_data/test_aporian_profile.json", "r") as file:
         profile = load(file)
     return profile
 
+
 @pytest.fixture()
 def aporian_stats():
-    with open("test/test_data/test_stats.json", "r") as file:
+    with open("test/test_data/test_aporian_stats.json", "r") as file:
         user_stats = load(file)
     return user_stats
 
-@pytest.fixture()
-def other_stats():
-    with open("test/test_data/test_other_stats.json", "r") as file:
-        other_stats = load(file)
-    return other_stats
 
 @pytest.fixture(scope="function")
 @patch("helpers.classes.get_profile")
@@ -120,6 +116,7 @@ class TestAddStats:
         mock_get_stats.return_value = aporian_stats
         TestAporian.add_stats()
         assert set(aporian_stats.keys()) == TestAporian.available_metrics
+
 
     class TestCurrentVsBest:
         def test_returns_data_frame(self, TestAporianStatsAdded):
