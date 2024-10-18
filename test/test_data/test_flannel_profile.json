@@ -1,0 +1,16 @@
+{
+    "player_id": 64808260,
+    "@id": "https://api.chess.com/pub/player/flannelmind",
+    "url": "https://www.chess.com/member/FlannelMind",
+    "name": "Chessica Motion",
+    "username": "flannelmind",
+    "followers": 31,
+    "country": "https://api.chess.com/pub/country/AF",
+    "last_online": 1724074406,
+    "joined": 1566974485,
+    "status": "basic",
+    "is_streamer": false,
+    "verified": false,
+    "league": "Champion",
+    "streaming_platforms": []
+}
