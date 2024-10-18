@@ -1,7 +1,62 @@
 import pytest
 import pandas as pd
 from json import load
+from unittest.mock import patch
 from helpers.classes import ChessUser, Comparison
+
+
+with open("test/test_data/test_aporian_profile.json", "r") as file:
+    aporian_profile = load(file)
+
+with open("test/test_data/test_aporian_stats.json", "r") as file:
+    aporian_stats = load(file)
+
+with open("test/test_data/test_flannel_profile.json", "r") as file:
+    flannel_profile = load(file)
+
+with open("test/test_data/test_flannel_stats.json", "r") as file:
+    flannel_stats = load(file)
+
+
+@pytest.fixture(scope="function")
+@patch("helpers.classes.get_stats")
+@patch("helpers.classes.get_profile")
+def test_aporian(mock_get_profile, mock_get_stats):
+    mock_get_profile.return_value = aporian_profile
+    mock_get_stats.return_value = aporian_stats
+    test_aporian = ChessUser("Aporian")
+    test_aporian.add_stats()
+    return test_aporian
+
+
+@pytest.fixture(scope="function")
+@patch("helpers.classes.get_stats")
+@patch("helpers.classes.get_profile")
+def test_flannel(mock_get_profile, mock_get_stats):
+    mock_get_profile.return_value = flannel_profile
+    mock_get_stats.return_value = flannel_stats
+    test_flannel = ChessUser("FlannelMind")
+    test_flannel.add_stats()
+    return test_flannel
+
+
+class TestInstantiationAttributes:
+    @pytest.mark.it("Instantiates with passed ChessUser objects as user and other attributes")
+    def test_instantiates_with_chess_users(self, test_aporian, test_flannel):
+        test_comparison = Comparison(test_aporian, test_flannel)
+        assert test_comparison.user == test_aporian
+        assert test_comparison.other == test_flannel
+
+    @pytest.mark.it("Instantiates with intersection of available metrics as comparable_metric attribute")
+    def test_instantiates_with_comparable_metrics(self, test_aporian, test_flannel):
+        test_comparison = Comparison(test_aporian, test_flannel)
+        expected_intersection = test_aporian.available_metrics.intersection(test_flannel.available_metrics)
+        assert test_comparison.comparable_metrics == expected_intersection
+
+    @pytest.mark.it("Instantiates with dataframe as df attribute")
+    def test_instantiates_with_dfs(self, test_aporian, test_flannel):
+        test_comparison = Comparison(test_aporian, test_flannel)
+        assert isinstance(test_comparison.df , pd.DataFrame)
 
 
 # class TestUserVOther:
