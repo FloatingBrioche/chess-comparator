@@ -24,9 +24,9 @@ with open("test/test_data/test_flannel_stats.json", "r") as file:
 def test_aporian(mock_get_profile, mock_get_stats):
     mock_get_profile.return_value = aporian_profile
     mock_get_stats.return_value = aporian_stats
-    test_aporian = ChessUser("Aporian")
-    test_aporian.add_stats()
-    return test_aporian
+    test_a = ChessUser("Aporian")
+    test_a.add_stats()
+    return test_a
 
 
 @pytest.fixture(scope="function")
@@ -35,9 +35,15 @@ def test_aporian(mock_get_profile, mock_get_stats):
 def test_flannel(mock_get_profile, mock_get_stats):
     mock_get_profile.return_value = flannel_profile
     mock_get_stats.return_value = flannel_stats
-    test_flannel = ChessUser("FlannelMind")
-    test_flannel.add_stats()
-    return test_flannel
+    test_f = ChessUser("FlannelMind")
+    test_f.add_stats()
+    return test_f
+
+
+@pytest.fixture()
+def test_comparison(test_aporian, test_flannel):
+    comp = Comparison(test_aporian, test_flannel)
+    return comp
 
 
 class TestInstantiationAttributes:
@@ -58,53 +64,45 @@ class TestInstantiationAttributes:
         test_comparison = Comparison(test_aporian, test_flannel)
         assert isinstance(test_comparison.df , pd.DataFrame)
 
+class TestCreateDF:
+    @pytest.mark.it("Df has passed user and other names as column names")
+    def test_data_frame_has_expected_col_names(self, test_comparison):
+        expected_cols = ['Aporian', 'FlannelMind']
+        assert test_comparison.df.columns.to_list() == expected_cols
 
-# class TestUserVOther:
-#     def test_returns_data_frame(self, user_stats, other_stats):
-#         result = get_user_v_other({"Mazza": user_stats}, {"Cazza": other_stats})
-#         assert isinstance(result, pd.DataFrame)
+    @pytest.mark.it("Df has metrics available for both users (only) as indices")
+    def test_data_frame_has_expected_row_names(self, test_comparison):
+        expected_rows = [
+            "blitz_best",
+            "blitz_current",
+            "blitz_wins",
+            "blitz_draws",
+            "blitz_losses",
+            "daily_best",
+            "daily_current",
+            "daily_wins",
+            "daily_draws",
+            "daily_losses",
+            "rapid_best",
+            "rapid_current",
+            "rapid_wins",
+            "rapid_draws",
+            "rapid_losses",
+            "puzzle_rush",
+            "puzzles",
+        ]
+        output_rows = test_comparison.df.index.to_list()
+        assert set(expected_rows) == set(output_rows)
 
-#     @pytest.mark.it("Df has passed user and other names as column names")
-#     def test_data_frame_has_expected_col_names(self, user_stats, other_stats):
-#         df = get_user_v_other({"Mazza": user_stats}, {"Cazza": other_stats})
-#         expected_cols = ["Mazza", "Cazza"]
-#         assert expected_cols == df.columns.to_list()
-
-#     @pytest.mark.it("Df has metrics available for both users (only) as indices")
-#     def test_data_frame_has_expected_row_names(self, user_stats, other_stats):
-#         df = get_user_v_other({"Mazza": user_stats}, {"Cazza": other_stats})
-#         expected_rows = [
-#             "blitz_best",
-#             "blitz_current",
-#             "blitz_wins",
-#             "blitz_draws",
-#             "blitz_losses",
-#             "daily_best",
-#             "daily_current",
-#             "daily_wins",
-#             "daily_draws",
-#             "daily_losses",
-#             "rapid_best",
-#             "rapid_current",
-#             "rapid_wins",
-#             "rapid_draws",
-#             "rapid_losses",
-#             "puzzle_rush",
-#             "puzzles",
-#         ]
-#         output_rows = df.index.to_list()
-#         assert set(expected_rows) == set(output_rows)
-
-#     @pytest.mark.it("Df populates rows with expected data from passed dicts")
-#     def test_row_data(self, user_stats, other_stats):
-#         df = get_user_v_other({"Mazza": user_stats}, {"Cazza": other_stats})
-#         expected_values = {
-#             "puzzles": [2593, 1808],
-#             "daily_best": [1584, 1278],
-#             "rapid_wins": [72, 2111],
-#         }
-#         for k, v in expected_values.items():
-#             assert df.loc[k].tolist() == v
+    @pytest.mark.it("Df populates rows with expected data from passed ChessUsers")
+    def test_row_data(self, test_comparison):
+        expected_values = {
+            "puzzles": [2593, 1808],
+            "daily_best": [1584, 1278],
+            "rapid_wins": [72, 2111],
+        }
+        for k, v in expected_values.items():
+            assert test_comparison.df.loc[k].tolist() == v
 
 
 # class TestExpandData:
