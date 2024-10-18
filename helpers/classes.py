@@ -44,7 +44,7 @@ class Comparison:
         self.other = other
         self.comparable_metrics = user.available_metrics & other.available_metrics
         self.df = None
-        self.create_df(self)
+        self.create_df()
 
     def create_df(self):
         try:
