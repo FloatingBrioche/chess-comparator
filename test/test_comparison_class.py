@@ -105,45 +105,43 @@ class TestCreateDF:
             assert test_comparison.df.loc[k].tolist() == v
 
 
-# class TestExpandData:
-#     def test_returns_data_frame(self, u_vs_oth_df):
-#         output = expand_data(u_vs_oth_df)
-#         assert isinstance(output, pd.DataFrame)
+class TestAddGameTotals:
+    def test_adds_total_wins(self, test_comparison):
+        test_comparison.add_game_totals()
+        expected = [384, 2424]
+        actual = test_comparison.df.loc["total_wins"].to_list()
+        assert actual == expected
 
-#     def test_new_df_has_total_games_index(self, u_vs_oth_df):
-#         df = expand_data(u_vs_oth_df)
-#         assert "total_games" in df.index.to_list()
+    def test_adds_total_draws(self, test_comparison):
+        test_comparison.add_game_totals()
+        expected = [15, 204]
+        actual = test_comparison.df.loc["total_draws"].to_list()
+        assert actual == expected
 
-#     def test_new_df_has_total_wins_draws_losses_indices(self, u_vs_oth_df):
-#         df = expand_data(u_vs_oth_df)
-#         indices = df.index.to_list()
-#         assert "total_wins" in indices
-#         assert "total_draws" in indices
-#         assert "total_losses" in indices
+    def test_adds_total_losses(self, test_comparison):
+        test_comparison.add_game_totals()
+        expected = [366, 2434]
+        actual = test_comparison.df.loc["total_losses"].to_list()
+        assert actual == expected
 
-#     def test_calculates_total_wins(self, u_vs_oth_df):
-#         df = expand_data(u_vs_oth_df)
-#         expected = [3, 3]
-#         actual = df.loc["total_wins"].to_list()
-#         assert actual == expected
+    def test_adds_total_games(self, test_comparison):
+        test_comparison.add_game_totals()
+        expected = [765, 5062]
+        actual = test_comparison.df.loc["total_games"].to_list()
+        assert actual == expected
 
-#     def test_calculates_total_draws(self, u_vs_oth_df):
-#         df = expand_data(u_vs_oth_df)
-#         expected = [3, 3]
-#         actual = df.loc["total_draws"].to_list()
-#         assert actual == expected
-
-#     def test_calculates_total_losses(self, u_vs_oth_df):
-#         df = expand_data(u_vs_oth_df)
-#         expected = [3, 3]
-#         actual = df.loc["total_losses"].to_list()
-#         assert actual == expected
-
-#     def test_calculates_total_games(self, u_vs_oth_df):
-#         df = expand_data(u_vs_oth_df)
-#         expected = [9, 9]
-#         actual = df.loc["total_games"].to_list()
-#         assert actual == expected
+    def test_adds_totals_to_component_objects_as_attributes(self, test_comparison):
+        test_comparison.add_game_totals()
+        # user
+        assert test_comparison.user.total_wins
+        assert test_comparison.user.total_draws
+        assert test_comparison.user.total_losses
+        assert test_comparison.user.total_games
+        # other
+        assert test_comparison.other.total_wins
+        assert test_comparison.other.total_draws
+        assert test_comparison.other.total_losses
+        assert test_comparison.other.total_games
 
 
 # class TestGetHeadToHead:
