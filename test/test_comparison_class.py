@@ -1,5 +1,6 @@
 import pytest
 import pandas as pd
+import numpy as np
 from json import load
 from unittest.mock import patch
 from helpers.classes import ChessUser, Comparison
@@ -142,6 +143,22 @@ class TestAddGameTotals:
         assert test_comparison.other.total_draws
         assert test_comparison.other.total_losses
         assert test_comparison.other.total_games
+
+
+class TestAddAvgRating:
+    def test_adds_avg_rating_index_to_df(self, test_comparison):
+        test_comparison.add_avg_rating()
+        indices = test_comparison.df.index.to_list()
+        assert "avg_rating_current" in indices
+
+    def test_calculates_avg_rating_from_available_ratings(self, test_comparison):
+        test_comparison.add_avg_rating()
+        aporian_expected_avg = int(np.mean([1508, 1222, 1012]))
+        flannel_expected_avg = int(np.mean([882, 944, 798]))
+        aporian_avg = test_comparison.df.at["avg_rating_current", "Aporian"]
+        flannel_avg = test_comparison.df.at["avg_rating_current", "FlannelMind"]
+        assert aporian_avg == aporian_expected_avg
+        assert flannel_avg == flannel_expected_avg
 
 
 # class TestGetHeadToHead:
