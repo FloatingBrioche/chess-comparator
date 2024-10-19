@@ -48,49 +48,68 @@ def test_comparison(test_aporian, test_flannel):
 
 
 class TestInstantiationAttributes:
-    @pytest.mark.it("Instantiates with passed ChessUser objects as user and other attributes")
+    @pytest.mark.it(
+        "Instantiates with passed ChessUser objects as user and other attributes"
+    )
     def test_instantiates_with_chess_users(self, test_aporian, test_flannel):
         test_comparison = Comparison(test_aporian, test_flannel)
         assert test_comparison.user == test_aporian
         assert test_comparison.other == test_flannel
 
-    @pytest.mark.it("Instantiates with intersection of available metrics as comparable_metric attribute")
+    @pytest.mark.it(
+        "Instantiates with intersection of available metrics as comparable_metric attribute"
+    )
     def test_instantiates_with_comparable_metrics(self, test_aporian, test_flannel):
         test_comparison = Comparison(test_aporian, test_flannel)
-        expected_intersection = test_aporian.available_metrics.intersection(test_flannel.available_metrics)
+        expected_intersection = test_aporian.available_metrics.intersection(
+            test_flannel.available_metrics
+        )
         assert test_comparison.comparable_metrics == expected_intersection
 
     @pytest.mark.it("Instantiates with dataframe as df attribute")
     def test_instantiates_with_dfs(self, test_aporian, test_flannel):
         test_comparison = Comparison(test_aporian, test_flannel)
-        assert isinstance(test_comparison.df , pd.DataFrame)
+        assert isinstance(test_comparison.df, pd.DataFrame)
+
 
 class TestCreateDF:
     @pytest.mark.it("Df has passed user and other names as column names")
     def test_data_frame_has_expected_col_names(self, test_comparison):
-        expected_cols = ['Aporian', 'FlannelMind']
+        expected_cols = ["Aporian", "FlannelMind"]
         assert test_comparison.df.columns.to_list() == expected_cols
 
     @pytest.mark.it("Df has metrics available for both users (only) as indices")
     def test_data_frame_has_expected_row_names(self, test_comparison):
         expected_rows = [
             "blitz_best",
-            "blitz_current",
-            "blitz_wins",
+            "daily_draw_%",
             "blitz_draws",
-            "blitz_losses",
-            "daily_best",
-            "daily_current",
-            "daily_wins",
+            "blitz_loss_%",
+            "puzzles",
+            "rapid_total_games",
+            "rapid_loss_%",
             "daily_draws",
+            "blitz_losses",
+            "daily_loss_%",
             "daily_losses",
             "rapid_best",
-            "rapid_current",
-            "rapid_wins",
+            "blitz_wins",
             "rapid_draws",
+            "blitz_draw_%",
+            "rapid_current",
+            "blitz_total_games",
+            "rapid_draw_%",
+            "daily_best",
+            "blitz_win_%",
             "rapid_losses",
+            "daily_win_%",
+            "daily_total_games",
+            "rapid_wins",
+            "rapid_win_%",
+            "daily_wins",
+            "daily_current",
             "puzzle_rush",
-            "puzzles",
+            "blitz_current",
         ]
         output_rows = test_comparison.df.index.to_list()
         assert set(expected_rows) == set(output_rows)
@@ -143,6 +162,12 @@ class TestAddGameTotals:
         assert test_comparison.other.total_draws
         assert test_comparison.other.total_losses
         assert test_comparison.other.total_games
+
+    def test_adds_overall_win_loss_percentages(self, test_comparison):
+        test_comparison.add_game_totals()
+        indices = test_comparison.df.index.to_list()
+        assert "overall_win_%" in indices
+        assert "overall_loss_%" in indices
 
 
 class TestAddAvgRating:

@@ -77,14 +77,22 @@ class Comparison:
                 
                 elif "record" in u_stats[metric]:                
                     u[metric_name + "_current"] = u_stats[metric]["last"]["rating"]
-                    u[metric_name + "_wins"] = u_stats[metric]["record"]["win"]
-                    u[metric_name + "_draws"] = u_stats[metric]["record"]["draw"]
-                    u[metric_name + "_losses"] = u_stats[metric]["record"]["loss"]
+                    u[metric_name + "_wins"] = (u_wins := u_stats[metric]["record"]["win"])
+                    u[metric_name + "_draws"] = (u_draws := u_stats[metric]["record"]["draw"])
+                    u[metric_name + "_losses"] = (u_losses := u_stats[metric]["record"]["loss"])
+                    u[metric_name + "_total_games"] = (u_total := u_wins + u_draws + u_losses)
+                    u[metric_name + "_win_%"] = round((u_wins / u_total) * 100, 2)
+                    u[metric_name + "_draw_%"] = round((u_draws / u_total) * 100, 2)
+                    u[metric_name + "_loss_%"] = round((u_losses / u_total) * 100, 2)
                     
                     oth[metric_name + "_current"] = oth_stats[metric]["last"]["rating"]
-                    oth[metric_name + "_wins"] = oth_stats[metric]["record"]["win"]
-                    oth[metric_name + "_draws"] = oth_stats[metric]["record"]["draw"]
-                    oth[metric_name + "_losses"] = oth_stats[metric]["record"]["loss"]
+                    oth[metric_name + "_wins"] = (o_wins := oth_stats[metric]["record"]["win"])
+                    oth[metric_name + "_draws"] = (o_draws := oth_stats[metric]["record"]["draw"])
+                    oth[metric_name + "_losses"] = (o_losses := oth_stats[metric]["record"]["loss"])
+                    oth[metric_name + "_total_games"] = (o_total := o_wins + o_draws + o_losses)
+                    oth[metric_name + "_win_%"] = round((o_wins / o_total) * 100, 2)
+                    oth[metric_name + "_draw_%"] = round((o_draws / o_total) * 100, 2)
+                    oth[metric_name + "_loss_%"] = round((o_losses / o_total) * 100, 2)
 
                     if "best" in u_stats[metric] and "best" in oth_stats[metric]:
                         u[metric_name + "_best"] = u_stats[metric]["best"]["rating"]
@@ -121,6 +129,15 @@ class Comparison:
             self.df.loc["total_games"] = [u_games, oth_games]
             setattr(self.user, "total_games", u_games)
             setattr(self.other, "total_games", oth_games)
+
+            u_win_pc = round((self.user.total_wins / self.user.total_games) * 100, 2)
+            u_loss_pc = round((self.user.total_losses / self.user.total_games) * 100, 2)
+
+            o_win_pc = round((self.other.total_wins / self.other.total_games) * 100, 2)
+            o_loss_pc = round((self.other.total_losses / self.other.total_games) * 100, 2)
+
+            self.df.loc[f"overall_win_%"] = [u_win_pc, o_win_pc]
+            self.df.loc[f"overall_loss_%"] = [u_loss_pc, o_loss_pc]
         
         except (KeyError, TypeError) as e:
             data_logger.error(f"Error in add_game_totals: {str(e)}")
@@ -135,48 +152,6 @@ class Comparison:
             self.df.loc["avg_rating_current"] = [int(u_avg), int(oth_avg)]
         except KeyError as e:
             data_logger.error(f"Error in add_avg_rating: {str(e)}")
-            raise e
-        
-
-    def add_win_loss_percentages(self):
-        u_name = self.user.username
-        o_name = self.other.username
-        try:
-            u_win_pc = round((self.user.total_wins / self.user.total_games) * 100, 2)
-            u_loss_pc = round((self.user.total_losses / self.user.total_games) * 100, 2)
-
-            o_win_pc = round((self.other.total_wins / self.other.total_games) * 100, 2)
-            o_loss_pc = round((self.other.total_losses / self.other.total_games) * 100, 2)
-
-            self.df.loc[f"overall_win_%"] = [u_win_pc, o_win_pc]
-            self.df.loc[f"overall_loss_%"] = [u_loss_pc, o_loss_pc]
-                        
-            game_types = ["blitz", "bullet", "daily", "rapid", "chess960"]
-            
-            for game in game_types:
-                filt_df = self.df.filter(regex=f"^{game}_[a-z]+", axis=0)
-                if not filt_df.empty:
-                    # User
-                    u_wins = filt_df.at[f"{game}_wins", u_name]
-                    u_draws = filt_df.at[f"{game}_draws", u_name]
-                    u_losses = filt_df.at[f"{game}_losses", u_name]
-                    u_total_games = u_wins + u_draws + u_losses
-                    u_win_pc = round((u_wins / u_total_games) * 100, 2)
-                    u_loss_pc = round((u_losses / u_total_games) * 100, 2)
-
-                    # Other
-                    o_wins = filt_df.at[f"{game}_wins", o_name]
-                    o_draws = filt_df.at[f"{game}_draws", o_name]
-                    o_losses = filt_df.at[f"{game}_losses", o_name]
-                    o_total_games = o_wins + o_draws + o_losses
-                    o_win_pc = round((o_wins / o_total_games) * 100, 2)
-                    o_loss_pc = round((o_losses / o_total_games) * 100, 2)
-
-                    self.df.loc[f"{game}_win_%"] = [u_win_pc, o_win_pc]
-                    self.df.loc[f"{game}_loss_%"] = [u_loss_pc, o_loss_pc]
-
-        except KeyError as e:
-            data_logger.error(f"Error in add_win_loss_percentages: {str(e)}")
             raise e
             
 
