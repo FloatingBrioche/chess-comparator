@@ -11,6 +11,7 @@ class ChessUser:
         self.stats = None
         self.available_metrics = None
         self.country = None
+        self.total_points = None
 
     def add_stats(self) -> None:
         self.name = self.profile["name"] if self.profile.get("name") is not None else self.username
@@ -49,7 +50,7 @@ class Comparison:
 
     def create_df(self):
         try:
-            # Acceses usernames for dict keys and create new keys in stats dict
+            # Accumulator dictionary to create df from
             stats = {self.user.username: {}, self.other.username: {}}
 
             # Shorthand alias variables
@@ -57,7 +58,7 @@ class Comparison:
             u_stats, oth_stats = self.user.stats, self.other.stats
 
             # Iterates over common metrics, looks up values and adds k-vs to stats dict
-            for metric in self.comparable_metrics:
+            for metric in sorted(list(self.comparable_metrics)):
                 
                 metric_name = metric.removeprefix("chess_")
                 
@@ -81,18 +82,18 @@ class Comparison:
                     u[metric_name + "_draws"] = (u_draws := u_stats[metric]["record"]["draw"])
                     u[metric_name + "_losses"] = (u_losses := u_stats[metric]["record"]["loss"])
                     u[metric_name + "_total_games"] = (u_total := u_wins + u_draws + u_losses)
-                    u[metric_name + "_win_%"] = round((u_wins / u_total) * 100, 2)
-                    u[metric_name + "_draw_%"] = round((u_draws / u_total) * 100, 2)
-                    u[metric_name + "_loss_%"] = round((u_losses / u_total) * 100, 2)
+                    u[metric_name + "_win_%"] = int((u_wins / u_total) * 100)
+                    u[metric_name + "_draw_%"] = int((u_draws / u_total) * 100)
+                    u[metric_name + "_loss_%"] = int((u_losses / u_total) * 100)
                     
                     oth[metric_name + "_current"] = oth_stats[metric]["last"]["rating"]
                     oth[metric_name + "_wins"] = (o_wins := oth_stats[metric]["record"]["win"])
                     oth[metric_name + "_draws"] = (o_draws := oth_stats[metric]["record"]["draw"])
                     oth[metric_name + "_losses"] = (o_losses := oth_stats[metric]["record"]["loss"])
                     oth[metric_name + "_total_games"] = (o_total := o_wins + o_draws + o_losses)
-                    oth[metric_name + "_win_%"] = round((o_wins / o_total) * 100, 2)
-                    oth[metric_name + "_draw_%"] = round((o_draws / o_total) * 100, 2)
-                    oth[metric_name + "_loss_%"] = round((o_losses / o_total) * 100, 2)
+                    oth[metric_name + "_win_%"] = int((o_wins / o_total) * 100)
+                    oth[metric_name + "_draw_%"] = int((o_draws / o_total) * 100)
+                    oth[metric_name + "_loss_%"] = int((o_losses / o_total) * 100)
 
                     if "best" in u_stats[metric] and "best" in oth_stats[metric]:
                         u[metric_name + "_best"] = u_stats[metric]["best"]["rating"]
@@ -130,11 +131,11 @@ class Comparison:
             setattr(self.user, "total_games", u_games)
             setattr(self.other, "total_games", oth_games)
 
-            u_win_pc = round((self.user.total_wins / self.user.total_games) * 100, 2)
-            u_loss_pc = round((self.user.total_losses / self.user.total_games) * 100, 2)
+            u_win_pc = int((self.user.total_wins / self.user.total_games) * 100)
+            u_loss_pc = int((self.user.total_losses / self.user.total_games) * 100)
 
-            o_win_pc = round((self.other.total_wins / self.other.total_games) * 100, 2)
-            o_loss_pc = round((self.other.total_losses / self.other.total_games) * 100, 2)
+            o_win_pc = int((self.other.total_wins / self.other.total_games) * 100)
+            o_loss_pc = int((self.other.total_losses / self.other.total_games) * 100)
 
             self.df.loc[f"overall_win_%"] = [u_win_pc, o_win_pc]
             self.df.loc[f"overall_loss_%"] = [u_loss_pc, o_loss_pc]
@@ -159,17 +160,20 @@ class Comparison:
         u_points = []
         o_points = []
         
-        for row in self.df.iterrows():
+        head_to_head_df = self.df.copy()
+
+        for row in head_to_head_df.iterrows():
             index = row[0]
             values = row[1].tolist()
             pos_metric = any([
-                "wins" in index, 
+                "win_%" in index, 
                 "current" in index, 
                 "best" in index,
                 "puzzle" in index,
-                "FIDE" in index
+                "FIDE" in index,
+                "total_games" in index
                 ])
-            neg_metric = "losses" in index
+            neg_metric = "loss_%" in index
             
             if pos_metric:
                 if values[0] > values[1]:
@@ -197,9 +201,10 @@ class Comparison:
                 u_points.append(0)
                 o_points.append(0)
         
-        self.df['Your points'] = u_points
-        self.df['Their points'] = o_points
-        self.df.loc[' '] = [' ', ' ', ' ', ' ']
-        self.df.loc["Total points"] = [' ', ' ', sum(u_points), sum(o_points)]
+        head_to_head_df['Your points'] = u_points
+        head_to_head_df['Their points'] = o_points
+
+        self.user.total_points = sum(u_points) 
+        self.other.total_points = sum(o_points)
         
-        return self.df
+        return head_to_head_df.query("`Your points` + `Their points` == 1")
