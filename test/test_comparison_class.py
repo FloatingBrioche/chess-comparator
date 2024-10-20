@@ -293,7 +293,6 @@ class TestGetHeadToHead:
         test_comparison.add_game_totals()
         test_comparison.add_avg_rating()  
         df = test_comparison.get_head_to_head()
-        print(df)
         loss_df = df.filter(regex="FIDE", axis=0)
         for row in loss_df.itertuples(index=False, name=None):
             user_has_higher_win_pc = row[0] > row[1]
