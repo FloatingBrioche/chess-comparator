@@ -1,7 +1,7 @@
 import streamlit as st
 
 from helpers.classes import ChessUser, Comparison
-from helpers.request_helpers import get_random_compatriot, get_random_gm
+from helpers.request_helpers import get_random_compatriot, get_random_gm, get_puzzle
 from helpers.plot_helpers import plot_pie
 from helpers.vars import indices, select_options
 
@@ -11,12 +11,12 @@ final_section = False
 
 st.title(":chess_pawn: :rainbow[Chess.com Stats Comparator] :chess_pawn:")
 
-st.write("Welcome to the Chess.com Stats Comparator, an app that let's you compare your stats against those of other users through visualisations and tables.")
+st.write(
+    "Welcome to the Chess.com Stats Comparator, an app that let's you compare your stats against those of other users through visualisations and tables."
+)
 st.text_input("Enter your Chess.com username to get started.", key="username")
 
 username = st.session_state.username
-
-
 
 if username:
     user = ChessUser(username)
@@ -31,7 +31,7 @@ if username:
             select_options,
             index=None,
         )
-        st.divider()    
+        st.divider()
 
 if comparison_type == "Myself":
     st.write("A wise choice. Comparison is the thief of joy, after all.")
@@ -62,7 +62,7 @@ if other:
     comparison = Comparison(user, other)
     comparison.add_game_totals()
     actual_indices = comparison.df.index.to_list()
-    
+
     u_col, oth_col = st.columns(2)
 
     with u_col:
@@ -111,26 +111,40 @@ if other:
 
     st.divider()
 
-    
     comparison.add_avg_rating()
 
-    st.bar_chart(
-        comparison.df.filter(items=indices["ratings"], axis=0), stack=False
-    )
-    
+    st.bar_chart(comparison.df.filter(items=indices["ratings"], axis=0), stack=False)
 
-    st.dataframe(comparison.df)       
+    st.dataframe(comparison.get_head_to_head())
+
+    with st.expander("And the winner is..."):
+        st.write(f"...{comparison.winner.name}!")
+        st.markdown(f"""
+                    | {user.name} | {other.name}|
+                    |:---:|:---:|
+                    | {user.total_points} points | {other.total_points} points |
+                    """)
+        if comparison.winner == user:
+            st.write(f"Well, look at that, you formidable chess ninja!")
+        if comparison.winner == other:
+            st.write(f"Ah well, perhaps you need a little more practice. Here's a puzzle to start with.")
+            puzzle: dict = get_puzzle()
+            st.markdown(f"[![Chess puzzle]({puzzle["image"]})]({puzzle["url"]})")
+        st.balloons()
+
+
 
     final_section = True
 
 if final_section:
+    
     st.divider()
 
     st.markdown(
-    '''
+        """
     ##### :balloon: :rainbow[Thanks for visiting!] :balloon:
 
     If you have any suggestions or comments about the app,  
     feel free to get in touch with me on [LinkedIn](https://www.linkedin.com/in/martincolbourne/) or check out the repo on my [GitHub](https://github.com/FloatingBrioche/).
-    '''
+    """
     )
