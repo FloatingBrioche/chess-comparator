@@ -324,3 +324,11 @@ class TestGetHeadToHead:
             num_rows = len(df.index)
             num_points = df[['Your points', 'Their points']].to_numpy().sum()
             assert num_rows == num_points
+
+    @pytest.mark.it("Sets winner attribute to component object with highest points")
+    def test_sets_winner(self, test_comparison):
+            test_comparison.add_game_totals()
+            test_comparison.add_avg_rating()  
+            df = test_comparison.get_head_to_head()
+            assert test_comparison.user.total_points > test_comparison.other.total_points
+            assert test_comparison.winner == test_comparison.user

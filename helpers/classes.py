@@ -152,7 +152,7 @@ class Comparison:
             oth_avg = filt_df[self.other.username].mean()
             self.df.loc["avg_rating_current"] = [int(u_avg), int(oth_avg)]
         except KeyError as e:
-            data_logger.error(f"Error in add_avg_rating: {str(e)}")
+            data_logger.error(f"Key error in add_avg_rating: {str(e)}")
             raise e
             
 
@@ -206,5 +206,7 @@ class Comparison:
 
         self.user.total_points = sum(u_points) 
         self.other.total_points = sum(o_points)
+        
+        self.winner = self.other if self.other.total_points > self.user.total_points else self.user
         
         return head_to_head_df.query("`Your points` + `Their points` == 1")
