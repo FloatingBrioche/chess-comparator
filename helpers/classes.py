@@ -14,7 +14,7 @@ class ChessUser:
         self.total_points = None
 
     def add_stats(self) -> None:
-        self.name = self.profile["name"] if self.profile.get("name") is not None else self.username
+        self.name = self.profile["name"] if self.profile.get("name") else self.username
         self.stats = get_stats(self.username)
         self.available_metrics = set(self.stats.keys())
         self.country = self.profile["country"].split("/")[-1]
@@ -44,7 +44,6 @@ class Comparison:
         self.user = user
         self.other = other
         self.comparable_metrics = user.available_metrics & other.available_metrics
-        self.df = None
         self.create_df()
 
 
@@ -99,7 +98,8 @@ class Comparison:
                         u[metric_name + "_best"] = u_stats[metric]["best"]["rating"]
                         oth[metric_name + "_best"] = oth_stats[metric]["best"]["rating"]
 
-            # Converts stats dict to dataframe with usernames as  columns
+            # Converts stats dict to dataframe with usernames as columns
+            # and saves as object attribute
             self.df = pd.DataFrame.from_dict(stats, orient="columns")
         
         except KeyError as e:
@@ -196,7 +196,7 @@ class Comparison:
                 else:
                     u_points.append(0)
                     o_points.append(0)
-            
+
             else:
                 u_points.append(0)
                 o_points.append(0)
