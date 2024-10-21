@@ -15,7 +15,13 @@ def plot_pie(df: pd.DataFrame, name: str, rows):
         )
         return axes.get_figure()
     
+    except ValueError as e:
+        plot_logger.error(f"Value error in plot_pie: {str(e)}, name = {name}")
+
     except RuntimeError as e:
-        plot_logger.error(f"Key error in plot_pie: {str(e)}, name = {name}")
-        raise e
+        plot_logger.error(f"Runtime error in plot_pie: {str(e)}, name = {name}")
+
+    except Exception as e:
+        plot_logger.error(f"Unexpected error in plot_pie: {str(e)}, name = {name}")
+
 
