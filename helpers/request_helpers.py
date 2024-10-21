@@ -83,7 +83,7 @@ def get_gms() -> list:
     - None (for any other response)
     """
     try:
-        url = f"https://api.chess.com/pub/titled/GM"
+        url = "https://api.chess.com/pub/titled/GM"
 
         response = get_request(url, headers=headers)
 
@@ -145,3 +145,18 @@ def get_random_compatriot(iso):
         with open(f"./storage/{iso}.json", "w") as jsizzle:
             dump(compatriots, jsizzle)
     return choice(compatriots)
+
+
+def get_puzzle():
+    try:
+        url = "https://api.chess.com/pub/puzzle"
+
+        response = get_request(url, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return None
+
+    except RequestException as e:
+        request_logger.error(f"Request error: {e}")

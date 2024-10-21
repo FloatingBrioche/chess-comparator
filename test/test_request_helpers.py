@@ -1,5 +1,5 @@
 import pytest
-from helpers.request_helpers import get_profile, get_stats, get_gms
+from helpers.request_helpers import get_profile, get_stats, get_gms, get_puzzle
 from unittest.mock import patch, Mock
 from requests.exceptions import RequestException
 
@@ -64,6 +64,11 @@ class TestGetGMs:
         output = get_gms()
         assert all(gm in output for gm in expected_gms)
 
+class TestGetPuzzle:
+    def test_returns_dict(self):
+        output = get_puzzle()
+        assert isinstance(output, dict)
+
 
 class TestLogging:
     @patch("helpers.request_helpers.get_request", side_effect=RequestException("Test exception"))
@@ -79,4 +84,9 @@ class TestLogging:
     @patch("helpers.request_helpers.get_request", side_effect=RequestException("Test exception"))
     def test_logs_get_gms_request_exceptions(self, mock_api_get, caplog):
         get_gms()
+        assert "Request error" in caplog.text
+
+    @patch("helpers.request_helpers.get_request", side_effect=RequestException("Test exception"))
+    def test_logs_get_puzzle_request_exceptions(self, mock_api_get, caplog):
+        get_puzzle()
         assert "Request error" in caplog.text
