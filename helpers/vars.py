@@ -14,7 +14,8 @@ indices = {
         "bullet_best",
         "bullet_current",
         "FIDE",
-        "puzzles"
+        "puzzles",
+        "avg_rating_current"
     ]
 }
 
