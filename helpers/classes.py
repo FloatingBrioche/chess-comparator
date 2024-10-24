@@ -19,19 +19,24 @@ class ChessUser:
         stats [None/dict]: the user's chess stats retrieved via API
         available_metrics [None/set]: the metrics (keys) included in the stats dict
         country [None/str]: the 2-character ISO 3166 code of the user's country
+        total_wins [int]: the user's wins as calculated by add_game_totals
+        total_draws [int]: the user's draws as calculated by add_game_totals
+        total_losses [int]: the user's losses as calculated by add_game_totals
+        total_games [int]: the user's games as calculated by add_game_totals
         total_points [None/int]: the user's points as calculated by get_head_to_head
     """
 
     def __init__(self, username: str):
         """
-        Initialise the instance using the passed username string.
+        Initialises the instance using the passed username string.
 
         The get_profile function is called during instantiation to attempt
         to retrieve the Chess.com profile for the user. For invalid usernames
         where no profile exists the return value will be None.
 
         Args:
-            username [str]: should be a chess.com username"""
+            username [str]: should be a chess.com username
+        """
 
         self.username = username
         self.profile = get_profile(username)
@@ -71,7 +76,7 @@ class ChessUser:
             KeyError: KeyErrors are caught and logged before being re-raised.
             TypeError: TypeErrors are caught and logged before being re-raised.
         """
-        
+
         try:
             stats = {"current": {}, "best": {}}
             for k, v in self.stats.items():
@@ -100,13 +105,59 @@ class ChessUser:
 
 
 class Comparison:
+    """
+    A comparison between two Chess.com users
+    
+    The class uses the aggregation of two ChessUser instances to create a
+    dataframe of comparable metrics and encapsulates several methods for 
+    expanding the data.
+    
+    Attributes:
+        user [ChessUser]: the ChessUser instance of the main user of the app
+        other [Chessuser]: the other user selected for the comparison
+        comparable_metrics [set]: the intersection of the metrics for both users
+        df [pd.Dataframe]: a dataframe of metrics with columns for each user
+        winner [Int]: the component object with the most get_head_to_head points
+    """
+    
     def __init__(self, user, other):
+        """
+        Initialises the instance using the passed ChessUser instances.
+
+        During initialisation, the intersection of available metrics from 
+        the two users is evaluated and create_df is called using that 
+        set of metrics.
+
+        Args:
+            user [ChessUser]: the ChessUser instance of the main app user
+            other [Chessuser]: the other user selected for the comparison
+        """
+
         self.user = user
         self.other = other
         self.comparable_metrics = user.available_metrics & other.available_metrics
         self.create_df()
 
-    def create_df(self):
+    def create_df(self) -> None:
+        """
+        Creates df and saves to df attribute of instance.
+
+        Iterates over the instance's comparable metrics and accesses
+        values from the component objects' stats attributes to 
+        build up dictionary of metrics. This dictionary is then used to 
+        construct the dataframe.
+
+        Args:
+            N/A
+
+        Returns:
+            None
+        
+        Raises:
+            KeyError: KeyErrors are caught and logged before being re-raised.
+            TypeError: TypeErrors are caught and logged before being re-raised.            
+        """
+        
         try:
             # Accumulator dictionary to create df from
             stats = {self.user.username: {}, self.other.username: {}}
@@ -136,35 +187,19 @@ class Comparison:
 
                 elif "record" in u_stats[metric]:
                     u[metric_name + "_current"] = u_stats[metric]["last"]["rating"]
-                    u[metric_name + "_wins"] = (
-                        u_wins := u_stats[metric]["record"]["win"]
-                    )
-                    u[metric_name + "_draws"] = (
-                        u_draws := u_stats[metric]["record"]["draw"]
-                    )
-                    u[metric_name + "_losses"] = (
-                        u_losses := u_stats[metric]["record"]["loss"]
-                    )
-                    u[metric_name + "_total_games"] = (
-                        u_total := u_wins + u_draws + u_losses
-                    )
+                    u[metric_name + "_wins"] = (u_wins := u_stats[metric]["record"]["win"])
+                    u[metric_name + "_draws"] = (u_draws := u_stats[metric]["record"]["draw"])
+                    u[metric_name + "_losses"] = (u_losses := u_stats[metric]["record"]["loss"])
+                    u[metric_name + "_total_games"] = (u_total := u_wins + u_draws + u_losses)
                     u[metric_name + "_win_%"] = int((u_wins / u_total) * 100)
                     u[metric_name + "_draw_%"] = int((u_draws / u_total) * 100)
                     u[metric_name + "_loss_%"] = int((u_losses / u_total) * 100)
 
                     oth[metric_name + "_current"] = oth_stats[metric]["last"]["rating"]
-                    oth[metric_name + "_wins"] = (
-                        o_wins := oth_stats[metric]["record"]["win"]
-                    )
-                    oth[metric_name + "_draws"] = (
-                        o_draws := oth_stats[metric]["record"]["draw"]
-                    )
-                    oth[metric_name + "_losses"] = (
-                        o_losses := oth_stats[metric]["record"]["loss"]
-                    )
-                    oth[metric_name + "_total_games"] = (
-                        o_total := o_wins + o_draws + o_losses
-                    )
+                    oth[metric_name + "_wins"] = (o_wins := oth_stats[metric]["record"]["win"])
+                    oth[metric_name + "_draws"] = (o_draws := oth_stats[metric]["record"]["draw"])
+                    oth[metric_name + "_losses"] = (o_losses := oth_stats[metric]["record"]["loss"])
+                    oth[metric_name + "_total_games"] = (o_total := o_wins + o_draws + o_losses)
                     oth[metric_name + "_win_%"] = int((o_wins / o_total) * 100)
                     oth[metric_name + "_draw_%"] = int((o_draws / o_total) * 100)
                     oth[metric_name + "_loss_%"] = int((o_losses / o_total) * 100)
@@ -174,7 +209,7 @@ class Comparison:
                         oth[metric_name + "_best"] = oth_stats[metric]["best"]["rating"]
 
             # Converts stats dict to dataframe with usernames as columns
-            # and saves as object attribute
+            # and saves as instance attribute
             self.df = pd.DataFrame.from_dict(stats, orient="columns")
 
         except KeyError as e:
@@ -199,9 +234,28 @@ class Comparison:
             )
             raise e
 
-    def add_game_totals(self):
+    def add_game_totals(self) -> None:
+        """
+        Expands df with data for total games and win %
+
+        Accesses number of wins, draws and losses for each game type and
+        adds these to create rows for overall wins, draws, losses and games.
+        Then, adds rows for overall win_% and loss_%. During execution also
+        updates attributes values in the component objects of the comparison
+        instance.
+
+        Args:
+            N/A
+
+        Returns:
+            None
+        
+        Raises:
+            KeyError: KeyErrors are caught and logged before being re-raised.
+            TypeError: TypeErrors are caught and logged before being re-raised.            
+        """        
         try:
-            # Captures usernames/df cols
+            # Captures usernames to access df cols
             user, other = self.user.username, self.other.username
 
             # Creates and iterates over filtered df to calculate total ws, ds, ls
@@ -232,7 +286,23 @@ class Comparison:
             data_logger.error(f"Error in add_game_totals: {str(e)}")
             raise e
 
-    def add_avg_rating(self):
+    def add_avg_rating(self) -> None:
+        """
+        Expands df with average rating over all game types for each user.
+
+        Filters df to all current ratings and then adds row with
+        mean rating for each user.
+
+        Args:
+            N/A
+
+        Returns:
+            None
+          
+        Raises:
+            KeyError: KeyErrors are caught and logged before being re-raised.         
+        """
+
         try:
             filt_df = self.df.filter(regex="current", axis=0)
             u_avg = filt_df[self.user.username].mean()
@@ -243,6 +313,25 @@ class Comparison:
             raise e
 
     def get_head_to_head(self) -> pd.DataFrame:
+        """
+        Returns new dataframe with columns for head-to-head points.
+
+        Copies existing comparison df and iterates over rows comparing
+        metrics and awarding points to the user with the best metrics.
+        Adds points columns for each user and filters the df to only
+        include rows where points have been awarded.
+
+        Also sets the "winner" attribute in the comparison instance and
+        the total points attributes in the two component objects.
+
+        Args:
+            N/A
+
+        Returns:
+            pd.dataframe
+                
+        """
+
         u_points = []
         o_points = []
 
