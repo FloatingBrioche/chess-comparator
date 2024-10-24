@@ -116,6 +116,7 @@ if other:
     st.bar_chart(comparison.df.filter(items=indices["ratings"], axis=0), stack=False)
 
     st.dataframe(comparison.get_head_to_head())
+    st.caption("(To see the full table, drag the bottom-right corner to expand it . . . . .    :point_up_2:)")
 
     with st.expander("And the winner is..."):
         st.write(f"...{comparison.winner.name}!")
