@@ -4,7 +4,35 @@ from helpers.request_helpers import get_profile, get_stats
 
 
 class ChessUser:
-    def __init__(self, username):
+    """
+    A Chess.com user
+
+    This object holds information about the user and is used as a component
+    object of the below "Comparison" class. It instantiates with some
+    attributes set to None that are later updated either via its own methods
+    or those of the aggregate class.
+
+    Attributes:
+        username [str]:  the user's username
+        profile [dict]: the user's profile information retrived via API
+        name [None/str]: the user's name (if available)
+        stats [None/dict]: the user's chess stats retrieved via API
+        available_metrics [None/set]: the metrics (keys) included in the stats dict
+        country [None/str]: the 2-character ISO 3166 code of the user's country
+        total_points [None/int]: the user's points as calculated by get_head_to_head
+    """
+
+    def __init__(self, username: str):
+        """
+        Initialise the instance using the passed username string.
+
+        The get_profile function is called during instantiation to attempt
+        to retrieve the Chess.com profile for the user. For invalid usernames
+        where no profile exists the return value will be None.
+
+        Args:
+            username [str]: should be a chess.com username"""
+
         self.username = username
         self.profile = get_profile(username)
         self.name = None
@@ -14,30 +42,62 @@ class ChessUser:
         self.total_points = None
 
     def add_stats(self) -> None:
+        """
+        Updates some instance attributes once the username has been validated.
+
+        Calls the get_stats function, which sends a get request to
+        the Chess.com API and converts the JSON response to a dictionary.
+        """
         self.name = self.profile["name"] if self.profile.get("name") else self.username
         self.stats = get_stats(self.username)
         self.available_metrics = set(self.stats.keys())
         self.country = self.profile["country"].split("/")[-1]
 
     def get_current_v_best(self) -> pd.DataFrame:
+        """
+        Returns a dataframe with columns for the user's current and best ratings.
+
+        Iterates over the instance's stats attribute and populates
+        two accumalor dictionaries with relevant values, which are then
+        used to create the dataframe.
+
+        Args:
+            N/A
+
+        Returns:
+            Dataframe with "Current" and "Best" columns and rows for each game type.
+
+        Raises:
+            KeyError: KeyErrors are caught and logged before being re-raised.
+            TypeError: TypeErrors are caught and logged before being re-raised.
+        """
+        
         try:
             stats = {"current": {}, "best": {}}
             for k, v in self.stats.items():
                 if isinstance(v, dict):
                     if "last" in v:
                         if "rating" in v["last"]:
-                            stats["current"][k.removeprefix("chess_")] = v["last"]["rating"]
+                            stats["current"][k.removeprefix("chess_")] = v["last"][
+                                "rating"
+                            ]
                     if "best" in v:
                         if "rating" in v["best"]:
-                            stats["best"][k.removeprefix("chess_")] = v["best"]["rating"]
+                            stats["best"][k.removeprefix("chess_")] = v["best"][
+                                "rating"
+                            ]
             return pd.DataFrame.from_dict(stats, orient="columns")
         except KeyError as e:
-            data_logger.error(f"Key error in get_current_v_best: {str(e)}, key = {k}, value = {v}")
+            data_logger.error(
+                f"Key error in get_current_v_best: {str(e)}, key = {k}, value = {v}"
+            )
             raise e
         except TypeError as e:
-            data_logger.error(f"Type error in get_current_v_best: {str(e)}, key = {k}, value = {v}")
+            data_logger.error(
+                f"Type error in get_current_v_best: {str(e)}, key = {k}, value = {v}"
+            )
             raise e
-    
+
 
 class Comparison:
     def __init__(self, user, other):
@@ -45,7 +105,6 @@ class Comparison:
         self.other = other
         self.comparable_metrics = user.available_metrics & other.available_metrics
         self.create_df()
-
 
     def create_df(self):
         try:
@@ -58,9 +117,9 @@ class Comparison:
 
             # Iterates over common metrics, looks up values and adds k-vs to stats dict
             for metric in sorted(list(self.comparable_metrics)):
-                
+
                 metric_name = metric.removeprefix("chess_")
-                
+
                 if metric == "fide":
                     u["FIDE"] = u_stats["fide"]
                     oth["FIDE"] = oth_stats["fide"]
@@ -74,22 +133,38 @@ class Comparison:
                     if "highest" in u_stats[metric] and "highest" in oth_stats[metric]:
                         u["puzzles"] = u_stats[metric]["highest"]["rating"]
                         oth["puzzles"] = oth_stats[metric]["highest"]["rating"]
-                
-                elif "record" in u_stats[metric]:                
+
+                elif "record" in u_stats[metric]:
                     u[metric_name + "_current"] = u_stats[metric]["last"]["rating"]
-                    u[metric_name + "_wins"] = (u_wins := u_stats[metric]["record"]["win"])
-                    u[metric_name + "_draws"] = (u_draws := u_stats[metric]["record"]["draw"])
-                    u[metric_name + "_losses"] = (u_losses := u_stats[metric]["record"]["loss"])
-                    u[metric_name + "_total_games"] = (u_total := u_wins + u_draws + u_losses)
+                    u[metric_name + "_wins"] = (
+                        u_wins := u_stats[metric]["record"]["win"]
+                    )
+                    u[metric_name + "_draws"] = (
+                        u_draws := u_stats[metric]["record"]["draw"]
+                    )
+                    u[metric_name + "_losses"] = (
+                        u_losses := u_stats[metric]["record"]["loss"]
+                    )
+                    u[metric_name + "_total_games"] = (
+                        u_total := u_wins + u_draws + u_losses
+                    )
                     u[metric_name + "_win_%"] = int((u_wins / u_total) * 100)
                     u[metric_name + "_draw_%"] = int((u_draws / u_total) * 100)
                     u[metric_name + "_loss_%"] = int((u_losses / u_total) * 100)
-                    
+
                     oth[metric_name + "_current"] = oth_stats[metric]["last"]["rating"]
-                    oth[metric_name + "_wins"] = (o_wins := oth_stats[metric]["record"]["win"])
-                    oth[metric_name + "_draws"] = (o_draws := oth_stats[metric]["record"]["draw"])
-                    oth[metric_name + "_losses"] = (o_losses := oth_stats[metric]["record"]["loss"])
-                    oth[metric_name + "_total_games"] = (o_total := o_wins + o_draws + o_losses)
+                    oth[metric_name + "_wins"] = (
+                        o_wins := oth_stats[metric]["record"]["win"]
+                    )
+                    oth[metric_name + "_draws"] = (
+                        o_draws := oth_stats[metric]["record"]["draw"]
+                    )
+                    oth[metric_name + "_losses"] = (
+                        o_losses := oth_stats[metric]["record"]["loss"]
+                    )
+                    oth[metric_name + "_total_games"] = (
+                        o_total := o_wins + o_draws + o_losses
+                    )
                     oth[metric_name + "_win_%"] = int((o_wins / o_total) * 100)
                     oth[metric_name + "_draw_%"] = int((o_draws / o_total) * 100)
                     oth[metric_name + "_loss_%"] = int((o_losses / o_total) * 100)
@@ -101,15 +176,28 @@ class Comparison:
             # Converts stats dict to dataframe with usernames as columns
             # and saves as object attribute
             self.df = pd.DataFrame.from_dict(stats, orient="columns")
-        
+
         except KeyError as e:
-            data_logger.error(f"Key error in get_user_v_other: {str(e)}, metric = {metric}, username = {self.user.username}, other_username = {self.other.username}")
+            data_logger.error(
+                (
+                    f"Key error in get_user_v_other: {str(e)}, "
+                    f"metric = {metric}, "
+                    f"username = {self.user.username}, "
+                    f"other_username = {self.other.username}"
+                )
+            )
             raise e
-        
+
         except TypeError as e:
-            data_logger.error(f"Type error in get_user_v_other: {str(e)}, metric = {metric}, username = {self.user.username}, other_username = {self.other.username}")
+            data_logger.error(
+                (
+                    f"Type error in get_user_v_other: {str(e)}, "
+                    f"metric = {metric}, "
+                    f"username = {self.user.username}, "
+                    f"other_username = {self.other.username}"
+                )
+            )
             raise e
-        
 
     def add_game_totals(self):
         try:
@@ -137,13 +225,12 @@ class Comparison:
             o_win_pc = int((self.other.total_wins / self.other.total_games) * 100)
             o_loss_pc = int((self.other.total_losses / self.other.total_games) * 100)
 
-            self.df.loc[f"overall_win_%"] = [u_win_pc, o_win_pc]
-            self.df.loc[f"overall_loss_%"] = [u_loss_pc, o_loss_pc]
-        
+            self.df.loc["overall_win_%"] = [u_win_pc, o_win_pc]
+            self.df.loc["overall_loss_%"] = [u_loss_pc, o_loss_pc]
+
         except (KeyError, TypeError) as e:
             data_logger.error(f"Error in add_game_totals: {str(e)}")
             raise e
-    
 
     def add_avg_rating(self):
         try:
@@ -154,27 +241,28 @@ class Comparison:
         except KeyError as e:
             data_logger.error(f"Key error in add_avg_rating: {str(e)}")
             raise e
-            
 
     def get_head_to_head(self) -> pd.DataFrame:
         u_points = []
         o_points = []
-        
+
         head_to_head_df = self.df.copy()
 
         for row in head_to_head_df.iterrows():
             index = row[0]
             values = row[1].tolist()
-            pos_metric = any([
-                "win_%" in index, 
-                "current" in index, 
-                "best" in index,
-                "puzzle" in index,
-                "FIDE" in index,
-                "total_games" in index
-                ])
+            pos_metric = any(
+                [
+                    "win_%" in index,
+                    "current" in index,
+                    "best" in index,
+                    "puzzle" in index,
+                    "FIDE" in index,
+                    "total_games" in index,
+                ]
+            )
             neg_metric = "loss_%" in index
-            
+
             if pos_metric:
                 if values[0] > values[1]:
                     u_points.append(1)
@@ -185,7 +273,7 @@ class Comparison:
                 else:
                     u_points.append(0)
                     o_points.append(0)
-            
+
             elif neg_metric:
                 if values[0] < values[1]:
                     u_points.append(1)
@@ -200,13 +288,17 @@ class Comparison:
             else:
                 u_points.append(0)
                 o_points.append(0)
-        
-        head_to_head_df['Your points'] = u_points
-        head_to_head_df['Their points'] = o_points
 
-        self.user.total_points = sum(u_points) 
+        head_to_head_df["Your points"] = u_points
+        head_to_head_df["Their points"] = o_points
+
+        self.user.total_points = sum(u_points)
         self.other.total_points = sum(o_points)
-        
-        self.winner = self.other if self.other.total_points > self.user.total_points else self.user
-        
+
+        self.winner = (
+            self.other
+            if self.other.total_points > self.user.total_points
+            else self.user
+        )
+
         return head_to_head_df.query("`Your points` + `Their points` == 1")
