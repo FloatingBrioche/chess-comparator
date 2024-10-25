@@ -1,13 +1,13 @@
 Name                            Stmts   Miss  Cover   Missing
 -------------------------------------------------------------
-helpers/classes.py                153     24    84%   95-104, 175-176, 231-251, 301-303, 327-329, 379-380, 390-391
+helpers/classes.py                153     20    87%   95-104, 231-251, 301-303, 327-329, 390-391
 helpers/loggers.py                  5      0   100%
 helpers/plot_helpers.py            13      6    54%   39-46
 helpers/request_helpers.py         69     24    65%   107, 130-141, 166-173, 197-204, 236
 helpers/vars.py                     3      0   100%
 test/test_chess_user_class.py     111     14    87%   60, 91-94, 99-103, 108-111
-test/test_comparison_class.py     249      6    98%   298-303
+test/test_comparison_class.py     249      6    98%   299-304
 test/test_plot_helpers.py          17      0   100%
 test/test_request_helpers.py       68      0   100%
 -------------------------------------------------------------
-TOTAL                             688     74    89%
+TOTAL                             688     70    90%

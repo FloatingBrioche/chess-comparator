@@ -88,6 +88,7 @@
             "draw": 10
         }
     },
+    "fide": 0,
     "tactics": {
         "highest": {
             "rating": 2593,

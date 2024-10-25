@@ -110,6 +110,7 @@ class TestCreateDF:
             "daily_current",
             "puzzle_rush",
             "blitz_current",
+            "FIDE"
         ]
         output_rows = test_comparison.df.index.to_list()
         assert set(expected_rows) == set(output_rows)
@@ -237,8 +238,8 @@ class TestGetHeadToHead:
         test_comparison.add_game_totals()
         test_comparison.add_avg_rating()
         df = test_comparison.get_head_to_head()
-        loss_df = df.filter(regex="win_%", axis=0)
-        for row in loss_df.itertuples(index=False, name=None):
+        win_df = df.filter(regex="win_%", axis=0)
+        for row in win_df.itertuples(index=False, name=None):
             user_has_higher_win_pc = row[0] > row[1]
             user_is_given_point = row[2] > row[3]
             assert user_has_higher_win_pc == user_is_given_point
@@ -251,8 +252,8 @@ class TestGetHeadToHead:
         test_comparison.add_game_totals()
         test_comparison.add_avg_rating()
         df = test_comparison.get_head_to_head()
-        loss_df = df.filter(regex="current", axis=0)
-        for row in loss_df.itertuples(index=False, name=None):
+        current_df = df.filter(regex="current", axis=0)
+        for row in current_df.itertuples(index=False, name=None):
             user_has_higher_win_pc = row[0] > row[1]
             user_is_given_point = row[2] > row[3]
             assert user_has_higher_win_pc == user_is_given_point

@@ -38,8 +38,6 @@ requirements: create-environment
 
 ################################################################################################################
 
-# Build / Run
-
 ## Run the black code check
 run-black:
 	$(call execute_in_env, black  ./main.py ./helpers/*.py ./test/*.py)
