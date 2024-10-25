@@ -3,7 +3,24 @@ import matplotlib.pyplot as plt
 from helpers.loggers import plot_logger
 
 
-def plot_pie(df: pd.DataFrame, name: str, rows):
+def plot_pie(df: pd.DataFrame, name: str, rows: list):
+    """
+    Returns a Matplotlib Figure object of a pie chart.
+
+    Filters the passed dataframe using the list of rows and
+    uses the plot.pie method to create the axes object from which the
+    figure is returned.
+
+    The function catches and logs exceptions that arise in occasional cases
+    of insufficient data but does not reraise them meaning the rest 
+    of the app will execute without the figures.
+
+    Args:
+        N/A
+
+    Returns:
+        Matplotlib Figure object of a pie chart.
+    """
     try:
         axes = df[name].filter(items=rows, axis=0).plot.pie(
             explode=(0, 0.1, 0),
