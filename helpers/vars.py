@@ -1,3 +1,5 @@
+# Vars used within main.py
+
 indices = {
     'blitz': ["blitz_wins", "blitz_draws", "blitz_losses"],
     'bullet': ["bullet_wins", "bullet_draws", "bullet_losses"],
@@ -25,3 +27,10 @@ select_options = [
         "A random grandmaster",
         "A random person from my country"
     ]
+
+# Var used within request_helpers.get_puzzle
+
+old_puzzle = {
+	"url": "https://www.chess.com/daily-chess-puzzle/2024-10-25",
+	"image": "https://www.chess.com/dynboard?fen=2n1k3/7N/8/1pPpB2p/3Pp1pP/P1q3P1/8/5RK1%20w%20-%20-%200%201&size=2"
+}
