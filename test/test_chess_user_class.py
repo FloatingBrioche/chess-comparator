@@ -79,12 +79,12 @@ class TestAddStats:
     @patch("helpers.classes.get_stats")
     @patch("helpers.classes.get_profile")
     def test_updates_name_username(self, mock_get_profile, mock_get_stats, profile):
-        del profile['name']
+        del profile["name"]
         mock_get_profile.return_value = profile
         TestAporianNoName = ChessUser("Aporian")
         TestAporianNoName.add_stats()
         assert TestAporianNoName.name == "Aporian"
-    
+
     @pytest.mark.it("Updates stats attribute with dictionary")
     @patch("helpers.classes.get_stats")
     def test_updates_stats(self, mock_get_stats, TestAporian, aporian_stats):
@@ -117,7 +117,6 @@ class TestAddStats:
         TestAporian.add_stats()
         assert set(aporian_stats.keys()) == TestAporian.available_metrics
 
-
     class TestCurrentVsBest:
         def test_returns_data_frame(self, TestAporianStatsAdded):
             result = TestAporianStatsAdded.get_current_v_best()
@@ -136,5 +135,3 @@ class TestAddStats:
             expected_rows = ["daily", "chess960_daily", "rapid", "bullet", "blitz"]
             output_rows = df.index.to_list()
             assert expected_rows == output_rows
-
-

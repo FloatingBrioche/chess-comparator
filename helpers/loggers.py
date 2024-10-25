@@ -5,7 +5,7 @@ logging.basicConfig(
     filemode="a",
     level=logging.ERROR,
     format="%(asctime)s – %(name)s. %(message)s",
-    datefmt="%d-%b-%Y %H:%M:%S"
+    datefmt="%d-%b-%Y %H:%M:%S",
 )
 
 data_logger = logging.getLogger("Data logger")

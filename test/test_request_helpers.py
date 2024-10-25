@@ -1,5 +1,13 @@
 import pytest
-from helpers.request_helpers import get_profile, get_stats, get_gms, get_puzzle
+from helpers.request_helpers import (
+    get_profile,
+    get_stats,
+    get_gms,
+    get_puzzle,
+    get_compatriots,
+    get_random_gm,
+    get_random_compatriot,
+)
 from unittest.mock import patch, Mock
 from requests.exceptions import RequestException
 
@@ -54,6 +62,7 @@ class TestGetStats:
         result = get_stats("Aporztian")
         assert result is None
 
+
 class TestGetGMs:
     def test_returns_list(self):
         output = get_gms()
@@ -64,6 +73,7 @@ class TestGetGMs:
         output = get_gms()
         assert all(gm in output for gm in expected_gms)
 
+
 class TestGetPuzzle:
     def test_returns_dict(self):
         output = get_puzzle()
@@ -71,22 +81,34 @@ class TestGetPuzzle:
 
 
 class TestLogging:
-    @patch("helpers.request_helpers.get_request", side_effect=RequestException("Test exception"))
+    @patch(
+        "helpers.request_helpers.get_request",
+        side_effect=RequestException("Test exception"),
+    )
     def test_logs_get_profile_request_exceptions(self, mock_api_get, caplog):
         get_profile("Aporian")
         assert "Request error" in caplog.text
 
-    @patch("helpers.request_helpers.get_request", side_effect=RequestException("Test exception"))
+    @patch(
+        "helpers.request_helpers.get_request",
+        side_effect=RequestException("Test exception"),
+    )
     def test_logs_get_stats_request_exceptions(self, mock_api_get, caplog):
         get_stats("Aporian")
         assert "Request error" in caplog.text
 
-    @patch("helpers.request_helpers.get_request", side_effect=RequestException("Test exception"))
+    @patch(
+        "helpers.request_helpers.get_request",
+        side_effect=RequestException("Test exception"),
+    )
     def test_logs_get_gms_request_exceptions(self, mock_api_get, caplog):
         get_gms()
         assert "Request error" in caplog.text
 
-    @patch("helpers.request_helpers.get_request", side_effect=RequestException("Test exception"))
+    @patch(
+        "helpers.request_helpers.get_request",
+        side_effect=RequestException("Test exception"),
+    )
     def test_logs_get_puzzle_request_exceptions(self, mock_api_get, caplog):
         get_puzzle()
         assert "Request error" in caplog.text

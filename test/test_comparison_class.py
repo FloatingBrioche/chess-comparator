@@ -215,13 +215,13 @@ class TestGetHeadToHead:
         assert not test_comparison.user.total_points
         assert not test_comparison.other.total_points
         test_comparison.get_head_to_head()
-        assert test_comparison.user.total_points 
+        assert test_comparison.user.total_points
         assert test_comparison.other.total_points
 
     @pytest.mark.it("Awards points to the user with lowest loss_%")
     def test_points_lowest_loss(self, test_comparison):
         test_comparison.add_game_totals()
-        test_comparison.add_avg_rating()  
+        test_comparison.add_avg_rating()
         df = test_comparison.get_head_to_head()
         loss_df = df.filter(regex="loss_%", axis=0)
         for row in loss_df.itertuples(index=False, name=None):
@@ -235,7 +235,7 @@ class TestGetHeadToHead:
     @pytest.mark.it("Awards points to the user with highest win_%")
     def test_points_highest_win(self, test_comparison):
         test_comparison.add_game_totals()
-        test_comparison.add_avg_rating()  
+        test_comparison.add_avg_rating()
         df = test_comparison.get_head_to_head()
         loss_df = df.filter(regex="win_%", axis=0)
         for row in loss_df.itertuples(index=False, name=None):
@@ -249,7 +249,7 @@ class TestGetHeadToHead:
     @pytest.mark.it("Awards points to the user with higher current rating")
     def test_points_higher_current(self, test_comparison):
         test_comparison.add_game_totals()
-        test_comparison.add_avg_rating()  
+        test_comparison.add_avg_rating()
         df = test_comparison.get_head_to_head()
         loss_df = df.filter(regex="current", axis=0)
         for row in loss_df.itertuples(index=False, name=None):
@@ -263,7 +263,7 @@ class TestGetHeadToHead:
     @pytest.mark.it("Awards points to the user with higher best rating")
     def test_points_higher_best(self, test_comparison):
         test_comparison.add_game_totals()
-        test_comparison.add_avg_rating()  
+        test_comparison.add_avg_rating()
         df = test_comparison.get_head_to_head()
         loss_df = df.filter(regex="best", axis=0)
         for row in loss_df.itertuples(index=False, name=None):
@@ -277,7 +277,7 @@ class TestGetHeadToHead:
     @pytest.mark.it("Awards points to the user with higher puzzle rating")
     def test_points_higher_puzzle(self, test_comparison):
         test_comparison.add_game_totals()
-        test_comparison.add_avg_rating()  
+        test_comparison.add_avg_rating()
         df = test_comparison.get_head_to_head()
         loss_df = df.filter(regex="puzzle", axis=0)
         for row in loss_df.itertuples(index=False, name=None):
@@ -291,7 +291,7 @@ class TestGetHeadToHead:
     @pytest.mark.it("Awards points to the user with higher FIDE rating")
     def test_points_higher_fide(self, test_comparison):
         test_comparison.add_game_totals()
-        test_comparison.add_avg_rating()  
+        test_comparison.add_avg_rating()
         df = test_comparison.get_head_to_head()
         loss_df = df.filter(regex="FIDE", axis=0)
         for row in loss_df.itertuples(index=False, name=None):
@@ -305,7 +305,7 @@ class TestGetHeadToHead:
     @pytest.mark.it("Awards points to the user with higher total games")
     def test_points_higher_total_games(self, test_comparison):
         test_comparison.add_game_totals()
-        test_comparison.add_avg_rating()  
+        test_comparison.add_avg_rating()
         df = test_comparison.get_head_to_head()
         loss_df = df.filter(regex="total_games", axis=0)
         for row in loss_df.itertuples(index=False, name=None):
@@ -318,17 +318,17 @@ class TestGetHeadToHead:
 
     @pytest.mark.it("Only includes indices where a point has been awarded")
     def test_includes_specific_indices(self, test_comparison):
-            test_comparison.add_game_totals()
-            test_comparison.add_avg_rating()  
-            df = test_comparison.get_head_to_head()
-            num_rows = len(df.index)
-            num_points = df[['Your points', 'Their points']].to_numpy().sum()
-            assert num_rows == num_points
+        test_comparison.add_game_totals()
+        test_comparison.add_avg_rating()
+        df = test_comparison.get_head_to_head()
+        num_rows = len(df.index)
+        num_points = df[["Your points", "Their points"]].to_numpy().sum()
+        assert num_rows == num_points
 
     @pytest.mark.it("Sets winner attribute to component object with highest points")
     def test_sets_winner(self, test_comparison):
-            test_comparison.add_game_totals()
-            test_comparison.add_avg_rating()  
-            df = test_comparison.get_head_to_head()
-            assert test_comparison.user.total_points > test_comparison.other.total_points
-            assert test_comparison.winner == test_comparison.user
+        test_comparison.add_game_totals()
+        test_comparison.add_avg_rating()
+        df = test_comparison.get_head_to_head()
+        assert test_comparison.user.total_points > test_comparison.other.total_points
+        assert test_comparison.winner == test_comparison.user

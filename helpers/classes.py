@@ -107,11 +107,11 @@ class ChessUser:
 class Comparison:
     """
     A comparison between two Chess.com users
-    
+
     The class uses the aggregation of two ChessUser instances to create a
-    dataframe of comparable metrics and encapsulates several methods for 
+    dataframe of comparable metrics and encapsulates several methods for
     expanding the data.
-    
+
     Attributes:
         user [ChessUser]: the ChessUser instance of the main user of the app
         other [Chessuser]: the other user selected for the comparison
@@ -119,13 +119,13 @@ class Comparison:
         df [pd.Dataframe]: a dataframe of metrics with columns for each user
         winner [Int]: the component object with the most get_head_to_head points
     """
-    
+
     def __init__(self, user, other):
         """
         Initialises the instance using the passed ChessUser instances.
 
-        During initialisation, the intersection of available metrics from 
-        the two users is evaluated and create_df is called using that 
+        During initialisation, the intersection of available metrics from
+        the two users is evaluated and create_df is called using that
         set of metrics.
 
         Args:
@@ -143,8 +143,8 @@ class Comparison:
         Creates df and saves to df attribute of instance.
 
         Iterates over the instance's comparable metrics and accesses
-        values from the component objects' stats attributes to 
-        build up dictionary of metrics. This dictionary is then used to 
+        values from the component objects' stats attributes to
+        build up dictionary of metrics. This dictionary is then used to
         construct the dataframe.
 
         Args:
@@ -152,12 +152,12 @@ class Comparison:
 
         Returns:
             None
-        
+
         Raises:
             KeyError: KeyErrors are caught and logged before being re-raised.
-            TypeError: TypeErrors are caught and logged before being re-raised.            
+            TypeError: TypeErrors are caught and logged before being re-raised.
         """
-        
+
         try:
             # Accumulator dictionary to create df from
             stats = {self.user.username: {}, self.other.username: {}}
@@ -187,19 +187,35 @@ class Comparison:
 
                 elif "record" in u_stats[metric]:
                     u[metric_name + "_current"] = u_stats[metric]["last"]["rating"]
-                    u[metric_name + "_wins"] = (u_wins := u_stats[metric]["record"]["win"])
-                    u[metric_name + "_draws"] = (u_draws := u_stats[metric]["record"]["draw"])
-                    u[metric_name + "_losses"] = (u_losses := u_stats[metric]["record"]["loss"])
-                    u[metric_name + "_total_games"] = (u_total := u_wins + u_draws + u_losses)
+                    u[metric_name + "_wins"] = (
+                        u_wins := u_stats[metric]["record"]["win"]
+                    )
+                    u[metric_name + "_draws"] = (
+                        u_draws := u_stats[metric]["record"]["draw"]
+                    )
+                    u[metric_name + "_losses"] = (
+                        u_losses := u_stats[metric]["record"]["loss"]
+                    )
+                    u[metric_name + "_total_games"] = (
+                        u_total := u_wins + u_draws + u_losses
+                    )
                     u[metric_name + "_win_%"] = int((u_wins / u_total) * 100)
                     u[metric_name + "_draw_%"] = int((u_draws / u_total) * 100)
                     u[metric_name + "_loss_%"] = int((u_losses / u_total) * 100)
 
                     oth[metric_name + "_current"] = oth_stats[metric]["last"]["rating"]
-                    oth[metric_name + "_wins"] = (o_wins := oth_stats[metric]["record"]["win"])
-                    oth[metric_name + "_draws"] = (o_draws := oth_stats[metric]["record"]["draw"])
-                    oth[metric_name + "_losses"] = (o_losses := oth_stats[metric]["record"]["loss"])
-                    oth[metric_name + "_total_games"] = (o_total := o_wins + o_draws + o_losses)
+                    oth[metric_name + "_wins"] = (
+                        o_wins := oth_stats[metric]["record"]["win"]
+                    )
+                    oth[metric_name + "_draws"] = (
+                        o_draws := oth_stats[metric]["record"]["draw"]
+                    )
+                    oth[metric_name + "_losses"] = (
+                        o_losses := oth_stats[metric]["record"]["loss"]
+                    )
+                    oth[metric_name + "_total_games"] = (
+                        o_total := o_wins + o_draws + o_losses
+                    )
                     oth[metric_name + "_win_%"] = int((o_wins / o_total) * 100)
                     oth[metric_name + "_draw_%"] = int((o_draws / o_total) * 100)
                     oth[metric_name + "_loss_%"] = int((o_losses / o_total) * 100)
@@ -249,11 +265,11 @@ class Comparison:
 
         Returns:
             None
-        
+
         Raises:
             KeyError: KeyErrors are caught and logged before being re-raised.
-            TypeError: TypeErrors are caught and logged before being re-raised.            
-        """        
+            TypeError: TypeErrors are caught and logged before being re-raised.
+        """
         try:
             # Captures usernames to access df cols
             user, other = self.user.username, self.other.username
@@ -298,9 +314,9 @@ class Comparison:
 
         Returns:
             None
-          
+
         Raises:
-            KeyError: KeyErrors are caught and logged before being re-raised.         
+            KeyError: KeyErrors are caught and logged before being re-raised.
         """
 
         try:
@@ -329,7 +345,7 @@ class Comparison:
 
         Returns:
             pd.dataframe
-                
+
         """
 
         u_points = []

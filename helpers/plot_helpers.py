@@ -12,7 +12,7 @@ def plot_pie(df: pd.DataFrame, name: str, rows: list):
     figure is returned.
 
     The function catches and logs exceptions that arise in occasional cases
-    of insufficient data but does not reraise them meaning the rest 
+    of insufficient data but does not reraise them meaning the rest
     of the app will execute without the figures.
 
     Args:
@@ -22,16 +22,20 @@ def plot_pie(df: pd.DataFrame, name: str, rows: list):
         Matplotlib Figure object of a pie chart.
     """
     try:
-        axes = df[name].filter(items=rows, axis=0).plot.pie(
-            explode=(0, 0.1, 0),
-            autopct="%1.0f%%",
-            pctdistance=0.4,
-            labeldistance=0.8,
-            shadow=True,
-            startangle=120
+        axes = (
+            df[name]
+            .filter(items=rows, axis=0)
+            .plot.pie(
+                explode=(0, 0.1, 0),
+                autopct="%1.0f%%",
+                pctdistance=0.4,
+                labeldistance=0.8,
+                shadow=True,
+                startangle=120,
+            )
         )
         return axes.get_figure()
-    
+
     except ValueError as e:
         plot_logger.error(f"Value error in plot_pie: {str(e)}, name = {name}")
 
@@ -40,5 +44,3 @@ def plot_pie(df: pd.DataFrame, name: str, rows: list):
 
     except Exception as e:
         plot_logger.error(f"Unexpected error in plot_pie: {str(e)}, name = {name}")
-
-

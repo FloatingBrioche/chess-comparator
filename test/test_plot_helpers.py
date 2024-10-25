@@ -14,9 +14,9 @@ def expanded_df():
 
 class TestPlotPie:
     def test_returns_plottable_object(self, expanded_df):
-        output = plot_pie(expanded_df, "Mazza", indices['totals'])
+        output = plot_pie(expanded_df, "Mazza", indices["totals"])
         assert isinstance(output, Figure)
 
     def test_takes_passed_name_as_y_label(self, expanded_df):
-        output = plot_pie(expanded_df, "Cazza", indices['totals'])
+        output = plot_pie(expanded_df, "Cazza", indices["totals"])
         assert output.get_axes()[0].get_ylabel() == "Cazza"

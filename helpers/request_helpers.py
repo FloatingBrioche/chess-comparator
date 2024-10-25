@@ -17,8 +17,8 @@ def get_profile(username: str) -> dict | None:
     Takes a string and uses the requests library to call the Chess.com API
     and retrieve the profile data for the given username.
 
-    If the string is a valid username, i.e. if the request receives a 
-    200 response, the JSON is converted to a dictionary and returned. 
+    If the string is a valid username, i.e. if the request receives a
+    200 response, the JSON is converted to a dictionary and returned.
     If not, returns None.
 
     Parameters:
@@ -46,13 +46,13 @@ def get_profile(username: str) -> dict | None:
 def get_stats(username: str) -> dict | None:
     """
     Retrieves Chess.com stats via API using username.
-    
-    Takes a username string and uses the requests library 
-    to call the Chess.com API and retrieve user stats 
+
+    Takes a username string and uses the requests library
+    to call the Chess.com API and retrieve user stats
     for the given user.
 
-    If the string is a valid username, i.e. if the request 
-    receives a 200 response, the JSON is converted to a dictionary 
+    If the string is a valid username, i.e. if the request
+    receives a 200 response, the JSON is converted to a dictionary
     and returned. If not, returns None.
 
     Parameters:
@@ -80,12 +80,12 @@ def get_stats(username: str) -> dict | None:
 def get_gms() -> list:
     """
     Returns a list of Chess.coms GMs retrieved via API.
-    
+
     Uses the requests library to call the Chess.com API
     and retrieve JSON data of the GMs who use the site.
 
     If the request receives a 200 response,
-    the JSON is converted to a list and returned. 
+    the JSON is converted to a list and returned.
     If not, returns None.
 
     Args:
@@ -138,7 +138,7 @@ def get_compatriots(iso: str):
             return None
 
     except RequestException as e:
-        request_logger.error(f"Request error: {e}")    
+        request_logger.error(f"Request error: {e}")
 
 
 def get_random_gm() -> str:
@@ -155,10 +155,10 @@ def get_random_gm() -> str:
 
     Args:
         - N/A
-    
+
     Returns:
         -  a string of the username of a GM
-    
+
     Raises:
         - N/A
     """
@@ -187,14 +187,14 @@ def get_random_compatriot(iso: str):
 
     Args:
         - N/A
-    
+
     Returns:
         -  string of the username of a user
-    
+
     Raises:
         - N/A
     """
-    if isfile(f'./storage/{iso}.json'):
+    if isfile(f"./storage/{iso}.json"):
         with open(f"./storage/{iso}.json", "r") as jsizzle:
             compatriots = load(jsizzle)
     else:
@@ -207,24 +207,24 @@ def get_random_compatriot(iso: str):
 def get_puzzle():
     """
     Returns Chess.com puzzle.
-    
-    Uses the requests library to call the Chess.com API and retrieve 
+
+    Uses the requests library to call the Chess.com API and retrieve
     JSON for a chess puzzle.
 
-    If the request receives a 200 response, the JSON is converted 
+    If the request receives a 200 response, the JSON is converted
     to a dictionary and returned. If not, returns an old puzzle.
 
     Args:
         - N/A
 
     Returns:
-        - A dictionary of the current Chess.com daily puzzle 
+        - A dictionary of the current Chess.com daily puzzle
             (for a 200 response)
             OR
-        - A dictionary of an old Chess.com daily puzzle 
+        - A dictionary of an old Chess.com daily puzzle
             (for any other response)
     """
-    
+
     try:
         url = "https://api.chess.com/pub/puzzle"
 

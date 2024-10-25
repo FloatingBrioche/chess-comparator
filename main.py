@@ -116,29 +116,33 @@ if other:
     st.bar_chart(comparison.df.filter(items=indices["ratings"], axis=0), stack=False)
 
     st.dataframe(comparison.get_head_to_head())
-    st.caption("(To see the full table, drag the bottom-right corner to expand it . . . . .    :point_up_2:)")
+    st.caption(
+        "(To see the full table, drag the bottom-right corner to expand it . . . . .    :point_up_2:)"
+    )
 
     with st.expander("And the winner is..."):
         st.write(f"...{comparison.winner.name}!")
-        st.markdown(f"""
+        st.markdown(
+            f"""
                     | {user.name} | {other.name}|
                     |:---:|:---:|
                     | {user.total_points} points | {other.total_points} points |
-                    """)
+                    """
+        )
         if comparison.winner == user:
             st.write(f"Well, look at that, you formidable chess ninja!")
         if comparison.winner == other:
-            st.write(f"Ah well, perhaps you need a little more practice. Here's a puzzle to start with.")
+            st.write(
+                f"Ah well, perhaps you need a little more practice. Here's a puzzle to start with."
+            )
             puzzle: dict = get_puzzle()
             st.markdown(f"[![Chess puzzle]({puzzle["image"]})]({puzzle["url"]})")
         st.balloons()
 
-
-
     final_section = True
 
 if final_section:
-    
+
     st.divider()
 
     st.markdown(
