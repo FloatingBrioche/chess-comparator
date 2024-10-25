@@ -4,6 +4,7 @@ from os.path import isfile
 from json import load, dump
 from random import choice
 from helpers.loggers import request_logger
+from helpers.vars import old_puzzle
 
 
 headers = {"user-agent": "chess-comparator"}
@@ -11,18 +12,22 @@ headers = {"user-agent": "chess-comparator"}
 
 def get_profile(username: str) -> dict | None:
     """
-    Takes a string and uses the requests library to call the Chess.com API
-    and retrieve profile data for the profile with that string as the username.
+    Retrieves Chess.com profile via API using username.
 
-    If the string is a valid username, i.e. if the request receives a 200 response,
-    the JSON is converted to a dictionary and returned. If not, returns None.
+    Takes a string and uses the requests library to call the Chess.com API
+    and retrieve the profile data for the given username.
+
+    If the string is a valid username, i.e. if the request receives a 
+    200 response, the JSON is converted to a dictionary and returned. 
+    If not, returns None.
 
     Parameters:
-    - username: str, should match a chess.com username.
+        - username: str, should match a chess.com username.
 
-    Returns either:
-    - A dictionary of chess.com profile data (for a 200 response)
-    - None (for any other response)"""
+    Returns:
+        - A dictionary of chess.com profile data (for a 200 response)
+            OR
+        - None (for any other response)"""
 
     try:
         url = f"https://api.chess.com/pub/player/{username}"
@@ -40,18 +45,23 @@ def get_profile(username: str) -> dict | None:
 
 def get_stats(username: str) -> dict | None:
     """
-    Takes a string and uses the requests library to call the Chess.com API
-    and retrieve user stats for the user with that string as the username.
+    Retrieves Chess.com stats via API using username.
+    
+    Takes a username string and uses the requests library 
+    to call the Chess.com API and retrieve user stats 
+    for the given user.
 
-    If the string is a valid username, i.e. if the request receives a 200 response,
-    the JSON is converted to a dictionary and returned. If not, returns None.
+    If the string is a valid username, i.e. if the request 
+    receives a 200 response, the JSON is converted to a dictionary 
+    and returned. If not, returns None.
 
     Parameters:
-    - username: str, should match a chess.com username.
+        - username [str]: should match a chess.com username.
 
-    Returns either:
-    - A dictionary of chess.com profile data (for a 200 response)
-    - None (for any other response)
+    Returns:
+        - A dictionary of Chess.com profile data (for a 200 response)
+            OR
+        - None (for any other response)
     """
     try:
         url = f"https://api.chess.com/pub/player/{username}/stats"
@@ -69,18 +79,22 @@ def get_stats(username: str) -> dict | None:
 
 def get_gms() -> list:
     """
+    Returns a list of Chess.coms GMs retrieved via API.
+    
     Uses the requests library to call the Chess.com API
     and retrieve JSON data of the GMs who use the site.
 
     If the request receives a 200 response,
-    the JSON is converted to a list and returned. If not, returns None.
+    the JSON is converted to a list and returned. 
+    If not, returns None.
 
-    Parameters:
-    - none
+    Args:
+        - N/A
 
-    Returns either:
-    - A list of chess.com GMs (for a 200 response)
-    - None (for any other response)
+    Returns:
+        - A list of chess.com GMs (for a 200 response)
+            OR
+        - None (for any other response)
     """
     try:
         url = "https://api.chess.com/pub/titled/GM"
@@ -98,18 +112,20 @@ def get_gms() -> list:
 
 def get_compatriots(iso: str):
     """
+    Returns a list of Chess.coms users retrieve via API.
+
     Uses the requests library to call the Chess.com API
     and retrieve JSON data of the users from a particular country.
-
     If the request receives a 200 response,
     the JSON is converted to a list and returned. If not, returns None.
 
-    Parameters:
-    - iso: str
+    Args:
+        - iso [str]: a string of the a country's ISO code
 
-    Returns either:
-    - A list of chess.com users (for a 200 response)
-    - None (for any other response)
+    Returns:
+        - A list of chess.com users (for a 200 response)
+            OR
+        - None (for any other response)
     """
     try:
         url = f"https://api.chess.com/pub/country/{iso}/players"
@@ -125,7 +141,28 @@ def get_compatriots(iso: str):
         request_logger.error(f"Request error: {e}")    
 
 
-def get_random_gm():
+def get_random_gm() -> str:
+    """
+    Returns the username of a randomly chosen GM.
+
+    Checks if JSON of GMs is stored. If so, loads
+    the list and uses the random library to chose and
+    return a GM from the list.
+
+    If no JSON data is currently stored, calls the get_gms
+    function to retrieve the list via API and save it before
+    selecting the GM.
+
+    Args:
+        - N/A
+    
+    Returns:
+        -  a string of the username of a GM
+    
+    Raises:
+        - N/A
+    """
+
     if isfile("./storage/saved_gms.json"):
         with open("./storage/saved_gms.json", "r") as jsizzle:
             gms = load(jsizzle)
@@ -136,7 +173,27 @@ def get_random_gm():
     return choice(gms)
 
 
-def get_random_compatriot(iso):
+def get_random_compatriot(iso: str):
+    """
+    Returns the username of a random user from the same country.
+
+    Checks if JSON of users is stored. If so, loads
+    the list and uses the random library to chose and
+    return a user from the list.
+
+    If no JSON data is currently stored, calls the get_compatriots
+    function to retrieve the list via API and save it before
+    selecting the user.
+
+    Args:
+        - N/A
+    
+    Returns:
+        -  string of the username of a user
+    
+    Raises:
+        - N/A
+    """
     if isfile(f'./storage/{iso}.json'):
         with open(f"./storage/{iso}.json", "r") as jsizzle:
             compatriots = load(jsizzle)
@@ -148,6 +205,26 @@ def get_random_compatriot(iso):
 
 
 def get_puzzle():
+    """
+    Returns Chess.com puzzle.
+    
+    Uses the requests library to call the Chess.com API and retrieve 
+    JSON for a chess puzzle.
+
+    If the request receives a 200 response, the JSON is converted 
+    to a dictionary and returned. If not, returns an old puzzle.
+
+    Args:
+        - N/A
+
+    Returns:
+        - A dictionary of the current Chess.com daily puzzle 
+            (for a 200 response)
+            OR
+        - A dictionary of an old Chess.com daily puzzle 
+            (for any other response)
+    """
+    
     try:
         url = "https://api.chess.com/pub/puzzle"
 
@@ -156,7 +233,7 @@ def get_puzzle():
         if response.status_code == 200:
             return response.json()
         else:
-            return None
+            return old_puzzle
 
     except RequestException as e:
         request_logger.error(f"Request error: {e}")
