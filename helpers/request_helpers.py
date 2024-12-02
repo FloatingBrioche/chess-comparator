@@ -239,7 +239,7 @@ def get_puzzle():
         request_logger.error(f"Request error: {e}")
 
 
-def get_archives(username: str):
+def get_archives(username: str) -> list | None:
     """
     Returns list of Chess.com monthly archives.
 
@@ -268,6 +268,42 @@ def get_archives(username: str):
 
         if response.status_code == 200:
             return response.json()['archives']
+        else:
+            return None
+
+    except RequestException as e:
+        request_logger.error(f"Request error: {e}")
+
+
+def get_archive(username: str, year: int, month: int):
+    """
+    Returns list of Chess.com games for given month.
+
+    Takes a username string and date ints and uses the requests library
+    to call the Chess.com API and retrieve month's games
+    for the given user.
+
+    If the request receives a 200 response, the JSON is converted
+    to a list and returned. If not, returns None.
+
+    Args:
+        - N/A
+
+    Returns:
+        - A list of the monthly Chess.com archives
+            (for a 200 response)
+            OR
+        - None
+            (for any other response)
+    """
+
+    try:
+        url = f"https://api.chess.com/pub/player/{username}/games/{year}/{month}"
+
+        response = get_request(url, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()['games']
         else:
             return None
 

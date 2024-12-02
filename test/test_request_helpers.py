@@ -7,7 +7,8 @@ from helpers.request_helpers import (
     get_compatriots,
     get_random_gm,
     get_random_compatriot,
-    get_archives
+    get_archives,
+    get_archive
 )
 from unittest.mock import patch, Mock
 from requests.exceptions import RequestException
@@ -115,10 +116,22 @@ class TestGetPuzzle:
 
 
 class TestGetArchives:
+    @pytest.mark.it("Uses username parameter in get request")
+    @patch("helpers.request_helpers.get_request")
+    def test_uses_username_param(self, mock_api_get, mock_response):
+        mock_api_get.return_value = mock_response
+        get_archives("Aporztian")
+        mock_api_get.assert_called_once_with(
+            "https://api.chess.com/pub/player/Aporztian/games/archives",
+            headers={"user-agent": "chess-comparator"},
+        )
+    
+    @pytest.mark.it("Returns list")
     def test_returns_list(self):
         output = get_archives("Aporian")
         assert isinstance(output, list)
 
+    @pytest.mark.it("Logs request exceptions")
     @patch(
         "helpers.request_helpers.get_request",
         side_effect=RequestException("Test exception"),
@@ -128,7 +141,30 @@ class TestGetArchives:
         assert "Request error" in caplog.text
 
 
+class TestGetArchive:
+    @pytest.mark.it("Uses username and date parameters in get request")
+    @patch("helpers.request_helpers.get_request")
+    def test_uses_username_param(self, mock_api_get, mock_response):
+        mock_api_get.return_value = mock_response
+        get_archive("Aporztian", 2020, 12)
+        mock_api_get.assert_called_once_with(
+            "https://api.chess.com/pub/player/Aporztian/games/2020/12",
+            headers={"user-agent": "chess-comparator"},
+        )
+    
+    @pytest.mark.it("Returns list")
+    def test_returns_list(self):
+        output = get_archive("Aporian", 2020, 12)
+        assert isinstance(output, list)
 
+    @pytest.mark.it("Logs request exceptions")
+    @patch(
+        "helpers.request_helpers.get_request",
+        side_effect=RequestException("Test exception"),
+    )
+    def test_logs_request_exceptions(self, mock_api_get, caplog):
+        get_archive("Aporztian", 2020, 12)
+        assert "Request error" in caplog.text
 
 
 
