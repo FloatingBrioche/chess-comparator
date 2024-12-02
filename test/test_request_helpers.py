@@ -7,6 +7,7 @@ from helpers.request_helpers import (
     get_compatriots,
     get_random_gm,
     get_random_compatriot,
+    get_archives
 )
 from unittest.mock import patch, Mock
 from requests.exceptions import RequestException
@@ -40,6 +41,14 @@ class TestGetProfile:
         result = get_profile("Aporztian")
         assert result is None
 
+    @patch(
+        "helpers.request_helpers.get_request",
+        side_effect=RequestException("Test exception"),
+    )
+    def test_logs_get_profile_request_exceptions(self, mock_api_get, caplog):
+        get_profile("Aporian")
+        assert "Request error" in caplog.text
+
 
 class TestGetStats:
     @pytest.mark.it("Uses username parameter in get request")
@@ -62,6 +71,14 @@ class TestGetStats:
         result = get_stats("Aporztian")
         assert result is None
 
+    @patch(
+        "helpers.request_helpers.get_request",
+        side_effect=RequestException("Test exception"),
+    )
+    def test_logs_get_stats_request_exceptions(self, mock_api_get, caplog):
+        get_stats("Aporian")
+        assert "Request error" in caplog.text
+
 
 class TestGetGMs:
     def test_returns_list(self):
@@ -73,30 +90,6 @@ class TestGetGMs:
         output = get_gms()
         assert all(gm in output for gm in expected_gms)
 
-
-class TestGetPuzzle:
-    def test_returns_dict(self):
-        output = get_puzzle()
-        assert isinstance(output, dict)
-
-
-class TestLogging:
-    @patch(
-        "helpers.request_helpers.get_request",
-        side_effect=RequestException("Test exception"),
-    )
-    def test_logs_get_profile_request_exceptions(self, mock_api_get, caplog):
-        get_profile("Aporian")
-        assert "Request error" in caplog.text
-
-    @patch(
-        "helpers.request_helpers.get_request",
-        side_effect=RequestException("Test exception"),
-    )
-    def test_logs_get_stats_request_exceptions(self, mock_api_get, caplog):
-        get_stats("Aporian")
-        assert "Request error" in caplog.text
-
     @patch(
         "helpers.request_helpers.get_request",
         side_effect=RequestException("Test exception"),
@@ -105,6 +98,13 @@ class TestLogging:
         get_gms()
         assert "Request error" in caplog.text
 
+
+class TestGetPuzzle:
+    def test_returns_dict(self):
+        output = get_puzzle()
+        print(output)
+        assert isinstance(output, dict)
+
     @patch(
         "helpers.request_helpers.get_request",
         side_effect=RequestException("Test exception"),
@@ -112,3 +112,26 @@ class TestLogging:
     def test_logs_get_puzzle_request_exceptions(self, mock_api_get, caplog):
         get_puzzle()
         assert "Request error" in caplog.text
+
+
+class TestGetArchives:
+    def test_returns_list(self):
+        output = get_archives("Aporian")
+        assert isinstance(output, list)
+
+    @patch(
+        "helpers.request_helpers.get_request",
+        side_effect=RequestException("Test exception"),
+    )
+    def test_logs_request_exceptions(self, mock_api_get, caplog):
+        get_archives("Aporian")
+        assert "Request error" in caplog.text
+
+
+
+
+
+
+
+
+
