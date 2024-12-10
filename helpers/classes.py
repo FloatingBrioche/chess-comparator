@@ -1,6 +1,8 @@
 import pandas as pd
+import asyncio
+import httpx
 from helpers.loggers import data_logger
-from helpers.request_helpers import get_profile, get_stats
+from helpers.request_helpers import get_profile, get_stats, get_archives, get_archive
 
 
 class ChessUser:
@@ -32,7 +34,7 @@ class ChessUser:
 
         The get_profile function is called during instantiation to attempt
         to retrieve the Chess.com profile for the user. For invalid usernames
-        where no profile exists the return value will be None.
+        where no profile exists, the return value will be None.
 
         Args:
             username [str]: should be a chess.com username
@@ -103,6 +105,18 @@ class ChessUser:
             )
             raise e
 
+    async def get_game_history(self):
+        
+        async with httpx.AsyncClient() as client:
+        
+            archives = get_archives(self.username)
+
+            tasks = [get_archive(url, client) for url in archives]
+
+            game_history = await asyncio.gather(*tasks)
+
+        return game_history
+    
 
 class Comparison:
     """
