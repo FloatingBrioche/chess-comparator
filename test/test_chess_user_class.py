@@ -1,8 +1,10 @@
 import pytest
+import time
 import pandas as pd
 from unittest.mock import patch
 from json import load
 from helpers.classes import ChessUser
+from helpers.vars import archive_keys
 
 
 @pytest.fixture()
@@ -135,3 +137,16 @@ class TestAddStats:
             expected_rows = ["daily", "chess960_daily", "rapid", "bullet", "blitz"]
             output_rows = df.index.to_list()
             assert expected_rows == output_rows
+
+    class TestGetGameHistory:
+        @pytest.mark.asyncio(loop_scope='function')
+        async def test_returns_list_of_archives_async(self, TestAporian):
+            start = time.time() 
+            result = await TestAporian.get_game_history()
+            end = time.time()
+            print(f'execution time = {end - start:.2f}')
+            result_keys = set(result[0][0].keys())
+            assert isinstance(result, list)
+            assert result_keys == archive_keys
+
+
