@@ -299,7 +299,6 @@ async def get_archive(url, client):
     """
 
     try:
-
         response = await client.get(url, headers=headers)
 
         if response.status_code == 200:

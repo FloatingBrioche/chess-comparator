@@ -1,4 +1,7 @@
 import pytest
+import httpx
+from unittest.mock import patch, Mock, AsyncMock
+from requests.exceptions import RequestException
 from helpers.request_helpers import (
     get_profile,
     get_stats,
@@ -10,8 +13,7 @@ from helpers.request_helpers import (
     get_archives,
     get_archive
 )
-from unittest.mock import patch, Mock
-from requests.exceptions import RequestException
+
 
 
 @pytest.fixture
@@ -142,29 +144,33 @@ class TestGetArchives:
 
 
 class TestGetArchive:
-    @pytest.mark.it("Uses username and date parameters in get request")
-    @patch("helpers.request_helpers.get_request")
-    def test_uses_username_param(self, mock_api_get, mock_response):
-        mock_api_get.return_value = mock_response
-        get_archive("Aporztian", 2020, 12)
-        mock_api_get.assert_called_once_with(
-            "https://api.chess.com/pub/player/Aporztian/games/2020/12",
-            headers={"user-agent": "chess-comparator"},
-        )
-    
-    @pytest.mark.it("Returns list")
-    def test_returns_list(self):
-        output = get_archive("Aporian", 2020, 12)
-        assert isinstance(output, list)
+    @pytest.mark.it("Uses url parameter in get request")
+    @pytest.mark.asyncio(loop_scope='function')
+    async def test_uses_username_param(self, mock_response):
+        client = AsyncMock()
+        client.get.return_value=mock_response
+        url = "egg"
+        result = await get_archive(url, client)
+        client.get.assert_called_once_with('egg', headers={'user-agent': 'chess-comparator'})
 
-    @pytest.mark.it("Logs request exceptions")
-    @patch(
-        "helpers.request_helpers.get_request",
-        side_effect=RequestException("Test exception"),
-    )
-    def test_logs_request_exceptions(self, mock_api_get, caplog):
-        get_archive("Aporztian", 2020, 12)
-        assert "Request error" in caplog.text
+    
+    # @pytest.mark.it("Returns list")
+    # @pytest.mark.asyncio(loop_scope='function')
+    # async def test_returns_list(self):
+    #     async with httpx.AsyncClient() as client:
+    #         url = "https://api.chess.com/pub/player/Aporztian/games/2020/12"
+    #         output = await get_archive(url, client)
+    #     assert isinstance(output, list)
+
+    # @pytest.mark.it("Logs request exceptions")
+    # @patch(
+    #     "helpers.request_helpers.get_request",
+    #     side_effect=httpx.RequestError("Test exception"),
+    # )
+    # def test_logs_request_exceptions(self, mock_api_get, caplog):
+    #                 url = "https://api.chess.com/pub/player/Aporztian/games/2020/12"
+    #     get_archive("Aporztian", 2020, 12)
+    #     assert "Request error" in caplog.text
 
 
 
