@@ -1,5 +1,6 @@
 from requests import get as get_request
 from requests.exceptions import RequestException
+from httpx import RequestError
 from os.path import isfile
 from json import load, dump
 from random import choice
@@ -275,7 +276,7 @@ def get_archives(username: str) -> list | None:
         request_logger.error(f"Request error: {e}")
 
 
-def get_archive(username: str, year: int, month: int):
+async def get_archive(url, client):
     """
     Returns list of Chess.com games for given month.
 
@@ -298,14 +299,13 @@ def get_archive(username: str, year: int, month: int):
     """
 
     try:
-        url = f"https://api.chess.com/pub/player/{username}/games/{year}/{month}"
 
-        response = get_request(url, headers=headers)
+        response = await client.get(url, headers=headers)
 
         if response.status_code == 200:
             return response.json()['games']
         else:
             return None
 
-    except RequestException as e:
+    except RequestError as e:
         request_logger.error(f"Request error: {e}")
