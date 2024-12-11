@@ -105,7 +105,6 @@ class TestGetGMs:
 class TestGetPuzzle:
     def test_returns_dict(self):
         output = get_puzzle()
-        print(output)
         assert isinstance(output, dict)
 
     @patch(
@@ -153,7 +152,6 @@ class TestGetArchive:
         result = await get_archive(url, client)
         client.get.assert_called_once_with('egg', headers={'user-agent': 'chess-comparator'})
 
-    
     @pytest.mark.it("Returns list")
     @pytest.mark.asyncio(loop_scope='function')
     async def test_returns_list(self):
@@ -164,7 +162,7 @@ class TestGetArchive:
 
     @pytest.mark.it("Logs request exceptions")
     @pytest.mark.asyncio(loop_scope='function')
-    async def test_logs_request_exceptions(self, mock_response, caplog):
+    async def test_logs_request_exceptions(self, caplog):
         client = AsyncMock()
         client.get.side_effect=httpx.RequestError("Request error")
         url = "egg"
