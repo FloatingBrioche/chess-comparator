@@ -187,7 +187,7 @@ def get_random_compatriot(iso: str):
     selecting the user.
 
     Args:
-        - N/A
+        - iso [str]: a string of the a country's ISO code
 
     Returns:
         -  string of the username of a user
@@ -252,7 +252,7 @@ def get_archives(username: str) -> list | None:
     to a list and returned. If not, returns None.
 
     Args:
-        - N/A
+        - username [str]: string of username
 
     Returns:
         - A list of the monthly Chess.com archives
@@ -280,7 +280,7 @@ async def get_archive(url, client):
     """
     Returns list of Chess.com games for given month.
 
-    Takes a username string and date ints and uses the requests library
+    Takes a url string and a httpx.AsyncClient object and uses the httpx library
     to call the Chess.com API and retrieve month's games
     for the given user.
 
@@ -288,10 +288,11 @@ async def get_archive(url, client):
     to a list and returned. If not, returns None.
 
     Args:
-        - N/A
+        - url [str]: a string of a monthly archive url
+        - client: a httpx.AsyncClient object passed in from the enclosing function
 
     Returns:
-        - A list of the monthly Chess.com archives
+        - A list of the Chess.com games archives for the url
             (for a 200 response)
             OR
         - None
