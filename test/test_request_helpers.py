@@ -127,7 +127,7 @@ class TestGetArchives:
             headers={"user-agent": "chess-comparator"},
         )
     
-    @pytest.mark.it("Returns list")
+    @pytest.mark.it("Returns list when passed valid username")
     def test_returns_list(self):
         output = get_archives("Aporian")
         assert isinstance(output, list)
@@ -152,7 +152,7 @@ class TestGetArchive:
         result = await get_archive(url, client)
         client.get.assert_called_once_with('egg', headers={'user-agent': 'chess-comparator'})
 
-    @pytest.mark.it("Returns list")
+    @pytest.mark.it("Returns list for valid url")
     @pytest.mark.asyncio(loop_scope='function')
     async def test_returns_list(self):
         async with httpx.AsyncClient() as client:
@@ -160,6 +160,24 @@ class TestGetArchive:
             output = await get_archive(url, client)
         assert isinstance(output, list)
 
+    @pytest.mark.it("Returns none for invalid url/404 reponse")
+    @pytest.mark.asyncio(loop_scope='function')
+    async def test_returns_none_404(self):
+        async with httpx.AsyncClient() as client:
+            url = "https://api.chess.com/pub/player/aporian/games/2008/123"
+            output = await get_archive(url, client)
+        assert output is None
+
+    @pytest.mark.it("Returns none for 500 reponse")
+    @pytest.mark.asyncio(loop_scope='function')
+    async def test_returns_none_500(self, mock_response):
+        url = "https://api.chess.com/pub/player/aporian/games/2008/12"
+        client = AsyncMock()
+        client.get.return_value=mock_response
+        output = await get_archive(url, client)
+        assert output is None
+
+    
     @pytest.mark.it("Logs request exceptions")
     @pytest.mark.asyncio(loop_scope='function')
     async def test_logs_request_exceptions(self, caplog):
