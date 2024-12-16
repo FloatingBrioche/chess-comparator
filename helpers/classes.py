@@ -108,14 +108,10 @@ class ChessUser:
     async def get_game_history(self):
         
         async with httpx.AsyncClient() as client:
-        
             archives = get_archives(self.username)
-
             tasks = [get_archive(url, client) for url in archives]
-
-            game_history = await asyncio.gather(*tasks)
-
-        return game_history
+            monthly_archives = await asyncio.gather(*tasks, return_exceptions=True)
+            self.game_history = [y for x in monthly_archives for y in x]
     
 
 class Comparison:
