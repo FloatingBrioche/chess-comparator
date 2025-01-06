@@ -281,7 +281,7 @@ async def get_archive(url, client):
     Returns list of Chess.com games for given month.
 
     Takes a url string and a httpx.AsyncClient object and uses the httpx library
-    to call the Chess.com API and retrieve month's games
+    to call the Chess.com API and retrieve that month's games
     for the given user.
 
     If the request receives a 200 response, the JSON is converted
@@ -308,4 +308,4 @@ async def get_archive(url, client):
             return None
 
     except RequestError as e:
-        request_logger.error(f"Request error: {e}")
+        request_logger.error(f"Request error: {str(e)}, url = {url}")
