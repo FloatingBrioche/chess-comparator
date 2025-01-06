@@ -1,10 +1,10 @@
 import pytest
 import time
 import pandas as pd
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
 from json import load
 from helpers.classes import ChessUser
-from helpers.vars import archive_keys
+from helpers.vars import required_game_archive_keys, test_monthly_archives_small, test_monthly_archives_large
 
 
 @pytest.fixture()
@@ -119,6 +119,7 @@ class TestAddStats:
         TestAporian.add_stats()
         assert set(aporian_stats.keys()) == TestAporian.available_metrics
 
+
     class TestCurrentVsBest:
         def test_returns_data_frame(self, TestAporianStatsAdded):
             result = TestAporianStatsAdded.get_current_v_best()
@@ -138,15 +139,43 @@ class TestAddStats:
             output_rows = df.index.to_list()
             assert expected_rows == output_rows
 
-    class TestGetGameHistory:
-        @pytest.mark.asyncio(loop_scope='function')
-        async def test_returns_list_of_archives_async(self, TestAporian):
-            start = time.time() 
-            result = await TestAporian.get_game_history()
-            end = time.time()
-            print(f'execution time = {end - start:.2f}')
-            result_keys = set(result[0][0].keys())
-            assert isinstance(result, list)
-            assert result_keys == archive_keys
 
+    class TestGetGameHistory:
+        @pytest.mark.it("Returns None")
+        @pytest.mark.asyncio(loop_scope="function")
+        @patch("helpers.classes.get_archives", return_value=test_monthly_archives_small)
+        async def test_returns_None(self, MockGetArchives, TestAporian):
+            result = await TestAporian.get_game_history()
+            assert result is None
+
+        @pytest.mark.it("Creates game_history attribute")
+        @pytest.mark.asyncio(loop_scope="function")
+        @patch("helpers.classes.get_archives", return_value=test_monthly_archives_small)
+        async def test_updates_game_history_attribute(self, MockGetArchives, TestAporian):
+            assert "game_history" not in dir(TestAporian)
+            await TestAporian.get_game_history()
+            assert TestAporian.game_history
+
+        @pytest.mark.it("game_history attribute is list of game archives with required keys")
+        @pytest.mark.asyncio(loop_scope="function")
+        @patch("helpers.classes.get_archives", return_value=test_monthly_archives_small)
+        async def test_updates_game_history_attribute(self, MockGetArchives, TestAporian):
+            await TestAporian.get_game_history()
+            game_history = TestAporian.game_history
+            assert isinstance(game_history, list)
+            for game in game_history:
+                game_keys = set(game.keys())
+                assert all(key in game_keys for key in required_game_archive_keys)
+            
+        @pytest.mark.it("Executes in <2 seconds for large set of archives")
+        @pytest.mark.asyncio(loop_scope="function")
+        @patch("helpers.classes.get_archives", return_value=test_monthly_archives_large)
+        async def test_performant_execution(self, MockGetArchives, TestAporian):
+            start = time.time()
+            await TestAporian.get_game_history()
+            end = time.time()
+            execution_time = end - start
+            print(f"Execution time = {execution_time:.2f}")
+            print(f"Number of requests = {len(test_monthly_archives_large)}")
+            assert execution_time < 2
 
