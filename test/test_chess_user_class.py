@@ -165,7 +165,7 @@ class TestAddStats:
             assert isinstance(game_history, list)
             for game in game_history:
                 game_keys = set(game.keys())
-                assert all(key in game_keys for key in required_game_archive_keys)
+                assert all([key in game_keys for key in required_game_archive_keys])
             
         @pytest.mark.it("Executes in <2 seconds for large set of archives")
         @pytest.mark.asyncio(loop_scope="function")

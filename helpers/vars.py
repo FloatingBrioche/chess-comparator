@@ -44,7 +44,6 @@ required_game_archive_keys = {
     "time_control",
     "rules",
     "white",
-    "eco",
     "uuid",
     "pgn",
     "black",
