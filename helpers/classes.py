@@ -111,9 +111,10 @@ class ChessUser:
             archives = get_archives(self.username)
             tasks = [get_archive(url, client) for url in archives]
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            monthly_archives = [result for result in results if isinstance(result, list)]
-            failures = [result for result in results if not isinstance(result, list)]
-            self.game_history = [y for x in monthly_archives for y in x]
+
+        monthly_archives = [result for result in results if isinstance(result, list)]
+        failures = [result for result in results if not isinstance(result, list)]
+        self.game_history = [y for x in monthly_archives for y in x]
     
 
 class Comparison:
