@@ -9,12 +9,12 @@ PYTHON_INTERPRETER = python
 WD=$(shell pwd)
 PYTHONPATH=${WD}
 SHELL := /bin/bash
-PIP:=pip
+PIP := pip
 
 ## Create python interpreter environment.
 create-environment:
 	@echo ">>> About to create environment: $(PROJECT_NAME)..."
-	@echo ">>> check python3 version"
+	@echo ">>> Checking python version"
 	( \
 		$(PYTHON_INTERPRETER) --version; \
 	)
