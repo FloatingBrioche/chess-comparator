@@ -3,7 +3,7 @@
 A Streamlit app for Chess.com players that lets users visualise their chess stats and compare them with other players.
 
 [![Tests](https://github.com/FloatingBrioche/chess-comparator/actions/workflows/tests.yaml/badge.svg)](https://github.com/FloatingBrioche/chess-comparator/actions/workflows/tests.yaml)
-[![Coverage](./coverage.svg)][./coverage.txt]
+[![Coverage](./coverage.svg)](./coverage.txt)
 
 ## Languages/Libraries
 
