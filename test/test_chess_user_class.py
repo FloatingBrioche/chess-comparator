@@ -1,10 +1,19 @@
-import pytest
 import time
+from unittest.mock import patch
+from json import load, dump
+
+import pytest
 import pandas as pd
-from unittest.mock import patch, AsyncMock
-from json import load
-from helpers.classes import ChessUser
-from helpers.vars import required_game_archive_keys, test_monthly_archives_small, test_monthly_archives_large
+
+from classes.chess_user import ChessUser
+from helpers.vars import (
+    required_game_archive_keys,
+    test_monthly_archives_small,
+    test_monthly_archives_large,
+)
+
+
+### Fixtures ###
 
 
 @pytest.fixture()
@@ -22,21 +31,24 @@ def aporian_stats():
 
 
 @pytest.fixture(scope="function")
-@patch("helpers.classes.get_profile")
+@patch("classes.chess_user.get_profile")
 def TestAporian(mock_get_profile, profile):
     mock_get_profile.return_value = profile
     return ChessUser("Aporian")
 
 
 @pytest.fixture(scope="function")
-@patch("helpers.classes.get_stats")
-@patch("helpers.classes.get_profile")
+@patch("classes.chess_user.get_stats")
+@patch("classes.chess_user.get_profile")
 def TestAporianStatsAdded(mock_get_profile, mock_get_stats, profile, aporian_stats):
     mock_get_profile.return_value = profile
     mock_get_stats.return_value = aporian_stats
     TestAporianStatsAdded = ChessUser("Aporian")
     TestAporianStatsAdded.add_stats()
     return TestAporianStatsAdded
+
+
+### Tests ###
 
 
 class TestInstantiationAttributes:
@@ -72,14 +84,14 @@ class TestInstantiationAttributes:
 
 class TestAddStats:
     @pytest.mark.it("Updates name att to profile name if profile contains name")
-    @patch("helpers.classes.get_stats")
+    @patch("classes.chess_user.get_stats")
     def test_updates_profile_name(self, mock_get_stats, TestAporian):
         TestAporian.add_stats()
         assert TestAporian.name == "Martin C."
 
     @pytest.mark.it("Updates name att to username if profile doesn't contain name")
-    @patch("helpers.classes.get_stats")
-    @patch("helpers.classes.get_profile")
+    @patch("classes.chess_user.get_stats")
+    @patch("classes.chess_user.get_profile")
     def test_updates_name_username(self, mock_get_profile, mock_get_stats, profile):
         del profile["name"]
         mock_get_profile.return_value = profile
@@ -88,7 +100,7 @@ class TestAddStats:
         assert TestAporianNoName.name == "Aporian"
 
     @pytest.mark.it("Updates stats attribute with dictionary")
-    @patch("helpers.classes.get_stats")
+    @patch("classes.chess_user.get_stats")
     def test_updates_stats(self, mock_get_stats, TestAporian, aporian_stats):
         mock_get_stats.return_value = aporian_stats
         assert TestAporian.stats is None
@@ -96,7 +108,7 @@ class TestAddStats:
         assert isinstance(TestAporian.stats, dict)
 
     @pytest.mark.it("Updates country attribute with country code string")
-    @patch("helpers.classes.get_stats")
+    @patch("classes.chess_user.get_stats")
     def test_updates_stats(self, mock_get_stats, TestAporian, aporian_stats):
         mock_get_stats.return_value = aporian_stats
         assert TestAporian.country is None
@@ -105,7 +117,7 @@ class TestAddStats:
         assert TestAporian.country == "XE"
 
     @pytest.mark.it("Updates available_metrics attribute with set")
-    @patch("helpers.classes.get_stats")
+    @patch("classes.chess_user.get_stats")
     def test_updates_stats(self, mock_get_stats, TestAporian, aporian_stats):
         mock_get_stats.return_value = aporian_stats
         assert TestAporian.available_metrics is None
@@ -113,12 +125,11 @@ class TestAddStats:
         assert isinstance(TestAporian.available_metrics, set)
 
     @pytest.mark.it("Available_metrics is set of stats keys")
-    @patch("helpers.classes.get_stats")
+    @patch("classes.chess_user.get_stats")
     def test_updates_stats(self, mock_get_stats, TestAporian, aporian_stats):
         mock_get_stats.return_value = aporian_stats
         TestAporian.add_stats()
         assert set(aporian_stats.keys()) == TestAporian.available_metrics
-
 
     class TestCurrentVsBest:
         def test_returns_data_frame(self, TestAporianStatsAdded):
@@ -139,43 +150,49 @@ class TestAddStats:
             output_rows = df.index.to_list()
             assert expected_rows == output_rows
 
-
     class TestGetGameHistory:
         @pytest.mark.it("Returns None")
         @pytest.mark.asyncio(loop_scope="function")
-        @patch("helpers.classes.get_archives", return_value=test_monthly_archives_small)
+        @patch("classes.chess_user.get_archives", return_value=test_monthly_archives_small)
         async def test_returns_None(self, MockGetArchives, TestAporian):
             result = await TestAporian.get_game_history()
             assert result is None
 
         @pytest.mark.it("Creates game_history attribute")
         @pytest.mark.asyncio(loop_scope="function")
-        @patch("helpers.classes.get_archives", return_value=test_monthly_archives_small)
-        async def test_updates_game_history_attribute(self, MockGetArchives, TestAporian):
+        @patch("classes.chess_user.get_archives", return_value=test_monthly_archives_small)
+        async def test_updates_game_history_attribute(
+            self, MockGetArchives, TestAporian
+        ):
             assert "game_history" not in dir(TestAporian)
             await TestAporian.get_game_history()
             assert TestAporian.game_history
 
-        @pytest.mark.it("game_history attribute is list of game archives with required keys")
+        @pytest.mark.it(
+            "game_history attribute is list of game archives with required keys"
+        )
         @pytest.mark.asyncio(loop_scope="function")
-        @patch("helpers.classes.get_archives", return_value=test_monthly_archives_small)
-        async def test_updates_game_history_attribute(self, MockGetArchives, TestAporian):
+        @patch("classes.chess_user.get_archives", return_value=test_monthly_archives_small)
+        async def test_updates_game_history_attribute(
+            self, MockGetArchives, TestAporian
+        ):
             await TestAporian.get_game_history()
             game_history = TestAporian.game_history
             assert isinstance(game_history, list)
             for game in game_history:
                 game_keys = set(game.keys())
                 assert all([key in game_keys for key in required_game_archive_keys])
-            
+
         @pytest.mark.it("Executes in <2 seconds for large set of archives")
         @pytest.mark.asyncio(loop_scope="function")
-        @patch("helpers.classes.get_archives", return_value=test_monthly_archives_large)
+        @patch("classes.chess_user.get_archives", return_value=test_monthly_archives_large)
         async def test_performant_execution(self, MockGetArchives, TestAporian):
             start = time.time()
             await TestAporian.get_game_history()
+            with open('test/test_data/test_aporian_game_history.json', 'w', encoding='utf8') as file:
+                dump(TestAporian.game_history, file, indent=4)
             end = time.time()
             execution_time = end - start
             print(f"Execution time = {execution_time:.2f}")
             print(f"Number of requests = {len(test_monthly_archives_large)}")
             assert execution_time < 2
-

@@ -1,9 +1,15 @@
+from json import load
+from unittest.mock import patch
+
 import pytest
 import pandas as pd
 import numpy as np
-from json import load
-from unittest.mock import patch
-from helpers.classes import ChessUser, Comparison
+
+from classes.chess_user import ChessUser
+from classes.comparison import Comparison
+
+
+### Test Data ### 
 
 
 with open("test/test_data/test_aporian_profile.json", "r") as file:
@@ -19,9 +25,11 @@ with open("test/test_data/test_flannel_stats.json", "r") as file:
     flannel_stats = load(file)
 
 
+### Fixtures ###
+
 @pytest.fixture(scope="function")
-@patch("helpers.classes.get_stats")
-@patch("helpers.classes.get_profile")
+@patch("classes.chess_user.get_stats")
+@patch("classes.chess_user.get_profile")
 def test_aporian(mock_get_profile, mock_get_stats):
     mock_get_profile.return_value = aporian_profile
     mock_get_stats.return_value = aporian_stats
@@ -31,8 +39,8 @@ def test_aporian(mock_get_profile, mock_get_stats):
 
 
 @pytest.fixture(scope="function")
-@patch("helpers.classes.get_stats")
-@patch("helpers.classes.get_profile")
+@patch("classes.chess_user.get_stats")
+@patch("classes.chess_user.get_profile")
 def test_flannel(mock_get_profile, mock_get_stats):
     mock_get_profile.return_value = flannel_profile
     mock_get_stats.return_value = flannel_stats
@@ -46,6 +54,8 @@ def test_comparison(test_aporian, test_flannel):
     comp = Comparison(test_aporian, test_flannel)
     return comp
 
+
+### Tests ###
 
 class TestInstantiationAttributes:
     @pytest.mark.it(
