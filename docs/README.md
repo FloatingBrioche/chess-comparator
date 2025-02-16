@@ -1,16 +1,14 @@
 # chess-comparator
+[![Tests](https://github.com/FloatingBrioche/chess-comparator/actions/workflows/tests.yaml/badge.svg)](https://github.com/FloatingBrioche/chess-comparator/actions/workflows/tests.yaml)
+[![Coverage](./docs/coverage.svg)](./docs/coverage.txt)
 
 A Streamlit app for Chess.com players that lets users visualise their chess stats and compare them with other players.
 
-[![Tests](https://github.com/FloatingBrioche/chess-comparator/actions/workflows/tests.yaml/badge.svg)](https://github.com/FloatingBrioche/chess-comparator/actions/workflows/tests.yaml)
-[![Coverage](./docs/coverage.svg)](./documentation/coverage.txt)
-
+The app is built around the Chess.com API. Users' data is requested using the httpx library and then wrangled into a Pandas dataframe
 
 <img src="./docs/chess_comparator_bar.png" width="60%" height="60%" alt="Example bar chart comparison">
 
 <img src="./docs/chess_comparator_table.png" width="40%" height="40%" alt="Example table  comparison">
-
-
 
 ## Languages/Libraries
 
@@ -29,5 +27,5 @@ A Streamlit app for Chess.com players that lets users visualise their chess stat
 
 ## Useful Links
 
-- https://www.chess.com/news/view/published-data-api
-- https://docs.streamlit.io/get-started
+- [Chess.com API endpoints](https://www.chess.com/news/view/published-data-api)
+- [Streamlit documentation](https://docs.streamlit.io/get-started)
