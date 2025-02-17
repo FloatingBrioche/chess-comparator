@@ -117,7 +117,6 @@ class ChessUser:
         self.game_history = [y for x in monthly_archives for y in x]
     
     def wrangle_game_history_df(self):
-        ids = []
         
         accumulator = {
             "colour": [],
@@ -139,7 +138,6 @@ class ChessUser:
         losses = ["checkmated", "timeout", "resigned", "abandoned", "kingofthehill", "threecheck", "bughousepartnerlose"]
 
         for game in self.game_history:
-            ids.append(game["url"].split("/")[-1])
 
             accumulator["time_class"].append(game["time_class"])
             accumulator["time_control"].append(game["time_control"])
@@ -183,7 +181,7 @@ class ChessUser:
                     accumulator["result"].append("loss")
                     accumulator["result_type"].append(black['result'])
         
-        self.game_history_df = pd.DataFrame(accumulator, index=ids)
+        self.game_history_df = pd.DataFrame(accumulator)
 
         return self.game_history_df
 

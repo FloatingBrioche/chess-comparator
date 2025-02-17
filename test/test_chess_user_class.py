@@ -243,16 +243,6 @@ class TestWrangleGameHistory:
         output = test_aporian_w_game_history.wrangle_game_history_df()
         assert output.shape[0] == len_game_history
 
-    @pytest.mark.it("Uses id from url in game_history as index")
-    def test_df_index(self, test_aporian_w_game_history):
-        ids_from_url = [
-            game["url"].split("/")[-1]
-            for game in test_aporian_w_game_history.game_history
-        ]
-        output = test_aporian_w_game_history.wrangle_game_history_df()
-        index = output.index.tolist()
-        assert ids_from_url == index
-
     @pytest.mark.it("Has expected columns")
     def test_df_columns(self, test_aporian_w_game_history):
         output = test_aporian_w_game_history.wrangle_game_history_df()
@@ -277,6 +267,7 @@ class TestWrangleGameHistory:
     def test_adds_game_df(self, test_aporian_w_game_history):
         assert "game_history_df" not in dir(test_aporian_w_game_history)
         output = test_aporian_w_game_history.wrangle_game_history_df()
+        output.to_markdown("docs/example_game_history.md")
         assert "game_history_df" in dir(test_aporian_w_game_history)
         assert isinstance(test_aporian_w_game_history.game_history_df, pd.DataFrame)
 
