@@ -134,6 +134,10 @@ class ChessUser:
             "op_accuracy": []
         }
 
+        # https://www.chess.com/news/view/published-data-api#game-results
+        draws = ["stalemate", "agreed", "repetition", "50move", "timevsinsufficient", "insufficient"]
+        losses = ["checkmated", "timeout", "resigned", "abandoned", "kingofthehill", "threecheck", "bughousepartnerlose"]
+
         for game in self.game_history:
             ids.append(game["url"].split("/")[-1])
 
@@ -150,20 +154,35 @@ class ChessUser:
                 accumulator["rating"].append(white['rating'])
                 accumulator["opponent"].append(black['username'])
                 accumulator["op_rating"].append(black['rating'])
-                accumulator["result"].append("win" if white['result'] == "win" else "loss")
-                accumulator["result_type"].append(black['result'])
                 accumulator["accuracy"].append(accuracies['white'] if accuracies else None)
                 accumulator["op_accuracy"].append(accuracies['black'] if accuracies else None)
+                if white['result'] == 'win':
+                    accumulator["result"].append("win")
+                    accumulator["result_type"].append(black['result'])
+                elif white['result'] in draws:
+                    accumulator["result"].append("draw")
+                    accumulator["result_type"].append(white['result'])
+                else:
+                    accumulator["result"].append("loss")
+                    accumulator["result_type"].append(white['result'])
+
             else:
                 accumulator["colour"].append("black")
                 accumulator["rating"].append(black['rating'])
                 accumulator["opponent"].append(white['username'])
                 accumulator["op_rating"].append(white['rating'])
-                accumulator["result"].append("win" if black['result'] == "win" else "loss")
-                accumulator["result_type"].append(white['result'])
                 accumulator["accuracy"].append(accuracies['black'] if accuracies else None)
                 accumulator["op_accuracy"].append(accuracies['white'] if accuracies else None)                
-
+                if black['result'] == 'win':
+                    accumulator["result"].append("win")
+                    accumulator["result_type"].append(white['result'])
+                elif black['result'] in draws:
+                    accumulator["result"].append("draw")
+                    accumulator["result_type"].append(black['result'])
+                else:
+                    accumulator["result"].append("loss")
+                    accumulator["result_type"].append(black['result'])
+        
         game_history_df = pd.DataFrame(accumulator, index=ids)
 
         return game_history_df
