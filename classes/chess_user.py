@@ -183,7 +183,17 @@ class ChessUser:
                     accumulator["result"].append("loss")
                     accumulator["result_type"].append(black['result'])
         
-        game_history_df = pd.DataFrame(accumulator, index=ids)
+        self.game_history_df = pd.DataFrame(accumulator, index=ids)
 
-        return game_history_df
+        return self.game_history_df
 
+    def add_accuracy_stats(self):
+        accuracies = self.game_history_df['accuracy']
+        
+        avg_accuracy = accuracies.mean()
+        highest_accuracy = accuracies.max()
+        lowest_accuracy = accuracies.min()
+        
+        self.avg_accuracy = round(avg_accuracy, 2)
+        self.highest_accuracy = highest_accuracy
+        self.lowest_accuracy = lowest_accuracy

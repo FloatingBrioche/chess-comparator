@@ -1,7 +1,6 @@
 import time
 from unittest.mock import patch
 from json import load
-
 import pytest
 import pandas as pd
 
@@ -68,6 +67,11 @@ def test_aporian_w_game_history(
     test_aporian_w_game_history = ChessUser("Aporian")
     test_aporian_w_game_history.add_stats()
     test_aporian_w_game_history.game_history = aporian_game_history
+    return test_aporian_w_game_history
+
+@pytest.fixture(scope="function")
+def test_aporian_w_game_history_df(test_aporian_w_game_history):
+    test_aporian_w_game_history.wrangle_game_history_df()
     return test_aporian_w_game_history
 
 
@@ -268,3 +272,35 @@ class TestWrangleGameHistory:
             "accuracy",
             "op_accuracy",
         ]
+
+    @pytest.mark.it("Adds game_history_df attribute to object")
+    def test_adds_game_df(self, test_aporian_w_game_history):
+        assert "game_history_df" not in dir(test_aporian_w_game_history)
+        output = test_aporian_w_game_history.wrangle_game_history_df()
+        assert "game_history_df" in dir(test_aporian_w_game_history)
+        assert isinstance(test_aporian_w_game_history.game_history_df, pd.DataFrame)
+
+
+class TestAddAccuracyStats:
+    @pytest.mark.it("Returns None")
+    def test_returns_none(self, test_aporian_w_game_history_df):
+        output = test_aporian_w_game_history_df.add_accuracy_stats()
+        assert output is None
+
+    @pytest.mark.it("Adds avg_accuracy attribute to object")
+    def test_adds_avg_accuracy(self, test_aporian_w_game_history_df):
+        assert "avg_accuracy" not in dir(test_aporian_w_game_history_df)
+        output = test_aporian_w_game_history_df.add_accuracy_stats()
+        assert "avg_accuracy" in dir(test_aporian_w_game_history_df)
+
+    @pytest.mark.it("Adds highest_accuracy attribute to object")
+    def test_adds_highest_accuracy(self, test_aporian_w_game_history_df):
+        assert "highest_accuracy" not in dir(test_aporian_w_game_history_df)
+        output = test_aporian_w_game_history_df.add_accuracy_stats()
+        assert "highest_accuracy" in dir(test_aporian_w_game_history_df)
+
+    @pytest.mark.it("Adds lowest_accuracy attribute to object")
+    def test_adds_lowest_accuracy(self, test_aporian_w_game_history_df):
+        assert "lowest_accuracy" not in dir(test_aporian_w_game_history_df)
+        output = test_aporian_w_game_history_df.add_accuracy_stats()
+        assert "lowest_accuracy" in dir(test_aporian_w_game_history_df)
