@@ -1,6 +1,6 @@
 import time
 from unittest.mock import patch
-from json import load, dump
+from json import load
 
 import pytest
 import pandas as pd
@@ -233,8 +233,38 @@ class TestWrangleGameHistory:
         output = test_aporian_w_game_history.wrangle_game_history_df()
         assert isinstance(output, pd.DataFrame)
 
-    @pytest.mark.it("Length")
-    def test_returns_df(self, test_aporian_w_game_history):
+    @pytest.mark.it("Length of df == length of game_history")
+    def test_df_len(self, test_aporian_w_game_history):
+        len_game_history = len(test_aporian_w_game_history.game_history)
         output = test_aporian_w_game_history.wrangle_game_history_df()
-        print(output)
-        assert isinstance(output, pd.DataFrame)
+        assert output.shape[0] == len_game_history
+
+    @pytest.mark.it("Uses id from url in game_history as index")
+    def test_df_index(self, test_aporian_w_game_history):
+        ids_from_url = [
+            game["url"].split("/")[-1]
+            for game in test_aporian_w_game_history.game_history
+        ]
+        output = test_aporian_w_game_history.wrangle_game_history_df()
+        index = output.index.tolist()
+        assert ids_from_url == index
+
+    @pytest.mark.it("Has expected columns")
+    def test_df_columns(self, test_aporian_w_game_history):
+        output = test_aporian_w_game_history.wrangle_game_history_df()
+        cols = output.columns.tolist()
+        assert output.shape[1] == 12
+        assert cols == [
+            "colour",
+            "time_class",
+            "time_control",
+            "rated",
+            "rating",
+            "opponent",
+            "op_rating",
+            "result",
+            "result_type",
+            "eco",
+            "accuracy",
+            "op_accuracy",
+        ]
