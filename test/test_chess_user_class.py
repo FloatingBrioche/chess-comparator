@@ -267,7 +267,6 @@ class TestWrangleGameHistory:
     def test_adds_game_df(self, test_aporian_w_game_history):
         assert "game_history_df" not in dir(test_aporian_w_game_history)
         output = test_aporian_w_game_history.wrangle_game_history_df()
-        output.to_markdown("docs/example_game_history.md")
         assert "game_history_df" in dir(test_aporian_w_game_history)
         assert isinstance(test_aporian_w_game_history.game_history_df, pd.DataFrame)
 
