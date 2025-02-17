@@ -13,7 +13,7 @@ from helpers.vars import (
 )
 
 
-### Fixtures ###
+# Fixtures
 
 
 @pytest.fixture()
@@ -28,6 +28,15 @@ def aporian_stats():
     with open("test/test_data/test_aporian_stats.json", "r") as file:
         user_stats = load(file)
     return user_stats
+
+
+@pytest.fixture(scope="function")
+def aporian_game_history():
+    with open(
+        "test/test_data/test_aporian_game_history.json", "r", encoding="utf8"
+    ) as f:
+        aporian_game_history = load(f)
+    return aporian_game_history
 
 
 @pytest.fixture(scope="function")
@@ -48,7 +57,21 @@ def TestAporianStatsAdded(mock_get_profile, mock_get_stats, profile, aporian_sta
     return TestAporianStatsAdded
 
 
-### Tests ###
+@pytest.fixture(scope="function")
+@patch("classes.chess_user.get_stats")
+@patch("classes.chess_user.get_profile")
+def test_aporian_w_game_history(
+    mock_get_profile, mock_get_stats, profile, aporian_stats, aporian_game_history
+):
+    mock_get_profile.return_value = profile
+    mock_get_stats.return_value = aporian_stats
+    test_aporian_w_game_history = ChessUser("Aporian")
+    test_aporian_w_game_history.add_stats()
+    test_aporian_w_game_history.game_history = aporian_game_history
+    return test_aporian_w_game_history
+
+
+# Tests
 
 
 class TestInstantiationAttributes:
@@ -153,14 +176,18 @@ class TestAddStats:
     class TestGetGameHistory:
         @pytest.mark.it("Returns None")
         @pytest.mark.asyncio(loop_scope="function")
-        @patch("classes.chess_user.get_archives", return_value=test_monthly_archives_small)
+        @patch(
+            "classes.chess_user.get_archives", return_value=test_monthly_archives_small
+        )
         async def test_returns_None(self, MockGetArchives, TestAporian):
             result = await TestAporian.get_game_history()
             assert result is None
 
         @pytest.mark.it("Creates game_history attribute")
         @pytest.mark.asyncio(loop_scope="function")
-        @patch("classes.chess_user.get_archives", return_value=test_monthly_archives_small)
+        @patch(
+            "classes.chess_user.get_archives", return_value=test_monthly_archives_small
+        )
         async def test_updates_game_history_attribute(
             self, MockGetArchives, TestAporian
         ):
@@ -172,7 +199,9 @@ class TestAddStats:
             "game_history attribute is list of game archives with required keys"
         )
         @pytest.mark.asyncio(loop_scope="function")
-        @patch("classes.chess_user.get_archives", return_value=test_monthly_archives_small)
+        @patch(
+            "classes.chess_user.get_archives", return_value=test_monthly_archives_small
+        )
         async def test_updates_game_history_attribute(
             self, MockGetArchives, TestAporian
         ):
@@ -185,14 +214,27 @@ class TestAddStats:
 
         @pytest.mark.it("Executes in <2 seconds for large set of archives")
         @pytest.mark.asyncio(loop_scope="function")
-        @patch("classes.chess_user.get_archives", return_value=test_monthly_archives_large)
+        @patch(
+            "classes.chess_user.get_archives", return_value=test_monthly_archives_large
+        )
         async def test_performant_execution(self, MockGetArchives, TestAporian):
             start = time.time()
             await TestAporian.get_game_history()
-            with open('test/test_data/test_aporian_game_history.json', 'w', encoding='utf8') as file:
-                dump(TestAporian.game_history, file, indent=4)
             end = time.time()
             execution_time = end - start
             print(f"Execution time = {execution_time:.2f}")
             print(f"Number of requests = {len(test_monthly_archives_large)}")
             assert execution_time < 2
+
+
+class TestWrangleGameHistory:
+    @pytest.mark.it("Returns data frame")
+    def test_returns_df(self, test_aporian_w_game_history):
+        output = test_aporian_w_game_history.wrangle_game_history_df()
+        assert isinstance(output, pd.DataFrame)
+
+    @pytest.mark.it("Length")
+    def test_returns_df(self, test_aporian_w_game_history):
+        output = test_aporian_w_game_history.wrangle_game_history_df()
+        print(output)
+        assert isinstance(output, pd.DataFrame)

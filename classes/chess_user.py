@@ -11,7 +11,7 @@ class ChessUser:
     A Chess.com user
 
     This object holds information about the user and is used as a component
-    object of the below "Comparison" class. It instantiates with some
+    object of the "Comparison" class. It instantiates with some
     attributes set to None that are later updated either via its own methods
     or those of the aggregate class.
 
@@ -117,8 +117,9 @@ class ChessUser:
         self.game_history = [y for x in monthly_archives for y in x]
     
     def wrangle_game_history_df(self):
+        ids = []
+        
         accumulator = {
-            "id": [],
             "colour": [],
             "time_class": [],
             "time_control": [],
@@ -134,7 +135,8 @@ class ChessUser:
         }
 
         for game in self.game_history:
-            accumulator["id"].append(game["url"].split("/")[-1])
+            ids.append(game["url"].split("/")[-1])
+
             accumulator["time_class"].append(game["time_class"])
             accumulator["time_control"].append(game["time_control"])
             accumulator["rated"].append(game["rated"])
@@ -147,6 +149,7 @@ class ChessUser:
                 accumulator["colour"].append("white")
                 accumulator["rating"].append(white['rating'])
                 accumulator["opponent"].append(black['username'])
+                accumulator["op_rating"].append(black['rating'])
                 accumulator["result"].append("win" if white['result'] == "win" else "loss")
                 accumulator["result_type"].append(black['result'])
                 accumulator["accuracy"].append(accuracies['white'] if accuracies else None)
@@ -155,12 +158,13 @@ class ChessUser:
                 accumulator["colour"].append("black")
                 accumulator["rating"].append(black['rating'])
                 accumulator["opponent"].append(white['username'])
+                accumulator["op_rating"].append(white['rating'])
                 accumulator["result"].append("win" if black['result'] == "win" else "loss")
                 accumulator["result_type"].append(white['result'])
                 accumulator["accuracy"].append(accuracies['black'] if accuracies else None)
                 accumulator["op_accuracy"].append(accuracies['white'] if accuracies else None)                
 
-        game_history_df = pd.DataFrame(accumulator)
+        game_history_df = pd.DataFrame(accumulator, index=ids)
 
         return game_history_df
 
