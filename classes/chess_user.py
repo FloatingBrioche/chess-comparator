@@ -1,6 +1,7 @@
 import pandas as pd
 import asyncio
 import httpx
+import numpy
 
 from helpers.loggers import data_logger
 from helpers.request_helpers import get_profile, get_stats, get_archives, get_archive
@@ -195,3 +196,15 @@ class ChessUser:
         self.avg_accuracy = round(avg_accuracy, 2)
         self.highest_accuracy = highest_accuracy
         self.lowest_accuracy = lowest_accuracy
+
+    def query_game_history(self, fact: str, dim: list) -> pd.DataFrame:
+
+        q_df = self.game_history_df.copy()
+        q_df = q_df[[*dim, fact]]
+
+        if fact == "accuracy":
+            q_df = q_df.query('accuracy.notna()')
+
+        q_df = q_df.groupby([*dim]).mean(numeric_only=True).round(2)
+
+        return q_df

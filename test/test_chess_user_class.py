@@ -294,3 +294,13 @@ class TestAddAccuracyStats:
         assert "lowest_accuracy" not in dir(test_aporian_w_game_history_df)
         output = test_aporian_w_game_history_df.add_accuracy_stats()
         assert "lowest_accuracy" in dir(test_aporian_w_game_history_df)
+
+
+class TestQueryGameHistory:
+    @pytest.mark.it("Returns data frame")
+    def test_returns_df(self, test_aporian_w_game_history_df):
+        output = test_aporian_w_game_history_df.query_game_history("accuracy", ["eco", "colour"])
+        assert isinstance(output, pd.DataFrame)
+
+
+
