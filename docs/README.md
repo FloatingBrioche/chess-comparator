@@ -6,9 +6,9 @@ A Streamlit app for Chess.com players that lets users visualise their chess stat
 
 The app is built around the Chess.com API. Users' data is requested using the httpx library and then wrangled into a Pandas dataframe
 
-<img src="./docs/chess_comparator_bar.png" width="60%" height="60%" alt="Example bar chart comparison">
+<img src="https://github.com/FloatingBrioche/chess-comparator/blob/main/docs/chess_comparator_bar.png" width="60%" height="60%" alt="Example bar chart comparison">
 
-<img src="./docs/chess_comparator_table.png" width="40%" height="40%" alt="Example table  comparison">
+<img src="https://github.com/FloatingBrioche/chess-comparator/blob/main/docs/chess_comparator_table.png" width="40%" height="40%" alt="Example table  comparison">
 
 ## Languages/Libraries
 
