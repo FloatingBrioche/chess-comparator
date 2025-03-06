@@ -197,14 +197,14 @@ class ChessUser:
         self.highest_accuracy = highest_accuracy
         self.lowest_accuracy = lowest_accuracy
 
-    def query_game_history(self, fact: str, dim: list) -> pd.DataFrame:
+    def query_game_history(self, fact: str, dims: list, rated_only: bool = False) -> pd.DataFrame:
 
         q_df = self.game_history_df.copy()
-        q_df = q_df[[*dim, fact]]
+        q_df = q_df[[*dims, fact]]
 
         if fact == "accuracy":
             q_df = q_df.query('accuracy.notna()')
 
-        q_df = q_df.groupby([*dim]).mean(numeric_only=True).round(2)
+        q_df = q_df.groupby([*dims]).mean(numeric_only=True).round(2)
 
-        return q_df
+        return q_df.sort_values(by=fact, ascending=False)

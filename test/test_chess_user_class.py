@@ -303,4 +303,18 @@ class TestQueryGameHistory:
         assert isinstance(output, pd.DataFrame)
 
 
+    @pytest.mark.it("Df has 'fact' and as column")
+    def test_df_has_expected_col(self, test_aporian_w_game_history_df):
+        output = test_aporian_w_game_history_df.query_game_history("accuracy", ["time_class", "colour"])
+        expected = ["accuracy"]
+        col = output.columns.to_list()
+        assert col == expected
 
+
+    @pytest.mark.it("Df has 'dimensions' and as MultiIndex")
+    def test_df_has_expected_index(self, test_aporian_w_game_history_df):
+        output = test_aporian_w_game_history_df.query_game_history("accuracy", ["time_class", "colour"])
+        expected = ["time_class", "colour"]
+        multi_index = output.index.names
+        assert multi_index == expected
+        print(output)
