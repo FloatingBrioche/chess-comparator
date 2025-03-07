@@ -28,6 +28,11 @@ class ChessUser:
         total_losses [int]: the user's losses as calculated by add_game_totals
         total_games [int]: the user's games as calculated by add_game_totals
         total_points [None/int]: the user's points as calculated by get_head_to_head
+        game_history [list]: a list of dicts, each representing a game
+        game_history_df [pd.DataFrame]: a df of the user's total game history
+        avg_accuracy [float]: the user's mean game accuracy
+        highest_accuracy [float]: the user's highest game accuracy
+        lowest_accuracy [float]: the user's lowest game accuracy
     """
 
     def __init__(self, username: str):
@@ -116,9 +121,9 @@ class ChessUser:
         monthly_archives = [result for result in results if isinstance(result, list)]
         failures = [result for result in results if not isinstance(result, list)]
         self.game_history = [y for x in monthly_archives for y in x]
-    
+
     def wrangle_game_history_df(self):
-        
+
         accumulator = {
             "colour": [],
             "time_class": [],
@@ -127,16 +132,32 @@ class ChessUser:
             "rating": [],
             "opponent": [],
             "op_rating": [],
-            "result": [], 
+            "result": [],
             "result_type": [],
             "eco": [],
             "accuracy": [],
-            "op_accuracy": []
+            "op_accuracy": [],
+            "url": [],
         }
 
         # https://www.chess.com/news/view/published-data-api#game-results
-        draws = ["stalemate", "agreed", "repetition", "50move", "timevsinsufficient", "insufficient"]
-        losses = ["checkmated", "timeout", "resigned", "abandoned", "kingofthehill", "threecheck", "bughousepartnerlose"]
+        draws = [
+            "stalemate",
+            "agreed",
+            "repetition",
+            "50move",
+            "timevsinsufficient",
+            "insufficient",
+        ]
+        losses = [
+            "checkmated",
+            "timeout",
+            "resigned",
+            "abandoned",
+            "kingofthehill",
+            "threecheck",
+            "bughousepartnerlose",
+        ]
 
         for game in self.game_history:
 
@@ -144,67 +165,104 @@ class ChessUser:
             accumulator["time_control"].append(game["time_control"])
             accumulator["rated"].append(game["rated"])
             accumulator["eco"].append(game["eco"].split("/")[-1])
+            accumulator["url"].append(game["url"])
 
-            white, black = game['white'], game['black']
+            white, black = game["white"], game["black"]
             accuracies = game.get("accuracies", None)
 
             if white["username"] == self.username:
                 accumulator["colour"].append("white")
-                accumulator["rating"].append(white['rating'])
-                accumulator["opponent"].append(black['username'])
-                accumulator["op_rating"].append(black['rating'])
-                accumulator["accuracy"].append(accuracies['white'] if accuracies else None)
-                accumulator["op_accuracy"].append(accuracies['black'] if accuracies else None)
-                if white['result'] == 'win':
+                accumulator["rating"].append(white["rating"])
+                accumulator["opponent"].append(black["username"])
+                accumulator["op_rating"].append(black["rating"])
+                accumulator["accuracy"].append(
+                    accuracies["white"] if accuracies else None
+                )
+                accumulator["op_accuracy"].append(
+                    accuracies["black"] if accuracies else None
+                )
+                if white["result"] == "win":
                     accumulator["result"].append("win")
-                    accumulator["result_type"].append(black['result'])
-                elif white['result'] in draws:
+                    accumulator["result_type"].append(black["result"])
+                elif white["result"] in draws:
                     accumulator["result"].append("draw")
-                    accumulator["result_type"].append(white['result'])
+                    accumulator["result_type"].append(white["result"])
                 else:
                     accumulator["result"].append("loss")
-                    accumulator["result_type"].append(white['result'])
+                    accumulator["result_type"].append(white["result"])
 
             else:
                 accumulator["colour"].append("black")
-                accumulator["rating"].append(black['rating'])
-                accumulator["opponent"].append(white['username'])
-                accumulator["op_rating"].append(white['rating'])
-                accumulator["accuracy"].append(accuracies['black'] if accuracies else None)
-                accumulator["op_accuracy"].append(accuracies['white'] if accuracies else None)                
-                if black['result'] == 'win':
+                accumulator["rating"].append(black["rating"])
+                accumulator["opponent"].append(white["username"])
+                accumulator["op_rating"].append(white["rating"])
+                accumulator["accuracy"].append(
+                    accuracies["black"] if accuracies else None
+                )
+                accumulator["op_accuracy"].append(
+                    accuracies["white"] if accuracies else None
+                )
+                if black["result"] == "win":
                     accumulator["result"].append("win")
-                    accumulator["result_type"].append(white['result'])
-                elif black['result'] in draws:
+                    accumulator["result_type"].append(white["result"])
+                elif black["result"] in draws:
                     accumulator["result"].append("draw")
-                    accumulator["result_type"].append(black['result'])
+                    accumulator["result_type"].append(black["result"])
                 else:
                     accumulator["result"].append("loss")
-                    accumulator["result_type"].append(black['result'])
-        
+                    accumulator["result_type"].append(black["result"])
+
         self.game_history_df = pd.DataFrame(accumulator)
 
         return self.game_history_df
 
     def add_accuracy_stats(self):
-        accuracies = self.game_history_df['accuracy']
-        
+        accuracies = self.game_history_df["accuracy"]
+
         avg_accuracy = accuracies.mean()
         highest_accuracy = accuracies.max()
         lowest_accuracy = accuracies.min()
-        
+
         self.avg_accuracy = round(avg_accuracy, 2)
         self.highest_accuracy = highest_accuracy
         self.lowest_accuracy = lowest_accuracy
 
-    def query_game_history(self, fact: str, dims: list, rated_only: bool = False) -> pd.DataFrame:
+    def query_game_history(
+        self, fact: str, dims: list, rated_only: bool = False
+    ) -> pd.DataFrame:
 
         q_df = self.game_history_df.copy()
+        if rated_only:
+            q_df = q_df.query("`rated`  == True")
         q_df = q_df[[*dims, fact]]
 
+        if "op_rating" in dims:
+            q_df["op_rating"] = q_df["op_rating"].round(decimals=-2)
+
         if fact == "accuracy":
-            q_df = q_df.query('accuracy.notna()')
+            q_df = q_df.query("accuracy.notna()")
+            q_df = q_df.groupby([*dims]).mean(numeric_only=True).round(2)
+        else:
+            q_df = (
+                q_df.groupby([*dims])
+                .agg(
+                    win_percentage=(
+                        "result",
+                        lambda x: sum(y == "win" for y in x) / len(x) * 100,
+                    ),
+                    draw_percentage=(
+                        "result",
+                        lambda x: sum(y == "draw" for y in x) / len(x) * 100,
+                    ),
+                    loss_percentage=(
+                        "result",
+                        lambda x: sum(y == "loss" for y in x) / len(x) * 100,
+                    ),
+                )
+                .round(1)
+            )
 
-        q_df = q_df.groupby([*dims]).mean(numeric_only=True).round(2)
-
-        return q_df.sort_values(by=fact, ascending=False)
+        if q_df.index.name != "op_rating" and fact == "accuracy":
+            return q_df.sort_values(by=fact, ascending=False)
+        else:
+            return q_df
