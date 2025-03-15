@@ -47,8 +47,8 @@ unit-test:
 	$(call execute_in_env, pytest test/* -vv --testdox)
 
 ## Run coverage and update coverage files
-coverage:
+get-coverage:
 	$(call execute_in_env, coverage run --omit 'venv/*' -m pytest test/* && coverage report -m > ./docs/coverage.txt && coverage-badge -o ./docs/coverage.svg -f)
 
 ## Run all checks
-run-checks: run-black unit-test coverage
+run-checks: run-black unit-test get-coverage
