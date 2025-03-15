@@ -3,7 +3,7 @@ coverage==7.6.4
 flake8==7.1.1
 matplotlib==3.9.2
 pytest-testdox==3.1.0
-streamlit==1.39.0
+streamlit==1.43.2
 watchdog==4.0.2
 asyncio==3.4.3
 pytest-asyncio==0.24.0
