@@ -1,0 +1,9 @@
+[client]
+showErrorDetails = "full"
+
+[theme]
+base = "light"
+primaryColor = "#19B58E"
+font = "monospace"
+
+# https://docs.streamlit.io/develop/concepts/configuration/theming
