@@ -9,7 +9,7 @@ from classes.chess_user import ChessUser
 from classes.comparison import Comparison
 
 
-### Test Data ### 
+### Test Data ###
 
 
 with open("test/test_data/test_aporian_profile.json", "r") as file:
@@ -26,6 +26,7 @@ with open("test/test_data/test_flannel_stats.json", "r") as file:
 
 
 ### Fixtures ###
+
 
 @pytest.fixture(scope="function")
 @patch("classes.chess_user.get_stats")
@@ -56,6 +57,7 @@ def test_comparison(test_aporian, test_flannel):
 
 
 ### Tests ###
+
 
 class TestInstantiationAttributes:
     @pytest.mark.it(
@@ -120,7 +122,7 @@ class TestCreateDF:
             "daily_current",
             "puzzle_rush",
             "blitz_current",
-            "FIDE"
+            "FIDE",
         ]
         output_rows = test_comparison.df.index.to_list()
         assert set(expected_rows) == set(output_rows)

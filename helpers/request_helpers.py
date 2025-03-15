@@ -75,7 +75,7 @@ def get_stats(username: str) -> dict | None:
             return None
 
     except RequestException as e:
-        request_logger.error(f"Request error: {e}")
+        request_logger.error(f"Request error: {repr(e)}")
 
 
 def get_gms() -> list:
@@ -268,7 +268,7 @@ def get_archives(username: str) -> list | None:
         response = get_request(url, headers=headers)
 
         if response.status_code == 200:
-            return response.json()['archives']
+            return response.json()["archives"]
         else:
             return None
 
@@ -303,7 +303,7 @@ async def get_archive(url, client):
         response = await client.get(url, headers=headers)
 
         if response.status_code == 200:
-            return response.json()['games']
+            return response.json()["games"]
         else:
             return None
 

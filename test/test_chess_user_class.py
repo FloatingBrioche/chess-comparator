@@ -71,6 +71,7 @@ def test_aporian_w_game_history(
     test_aporian_w_game_history.game_history = aporian_game_history
     return test_aporian_w_game_history
 
+
 @pytest.fixture(scope="function")
 def test_aporian_w_game_history_df(test_aporian_w_game_history):
     test_aporian_w_game_history.wrangle_game_history_df()
@@ -263,7 +264,7 @@ class TestWrangleGameHistory:
             "eco",
             "accuracy",
             "op_accuracy",
-            "url"
+            "url",
         ]
 
     @pytest.mark.it("Adds game_history_df attribute to object")
@@ -302,54 +303,72 @@ class TestAddAccuracyStats:
 class TestQueryGameHistory:
     @pytest.mark.it("Returns data frame")
     def test_returns_df(self, test_aporian_w_game_history_df):
-        output = test_aporian_w_game_history_df.query_game_history("accuracy", ["eco", "colour"])
+        output = test_aporian_w_game_history_df.query_game_history(
+            "accuracy", ["eco", "colour"]
+        )
         assert isinstance(output, pd.DataFrame)
 
     @pytest.mark.it("Df uses passed 'dimension(s)' as index/MultiIndex")
     def test_df_has_expected_index(self, test_aporian_w_game_history_df):
-        i_output = test_aporian_w_game_history_df.query_game_history("accuracy", ["time_class"])
+        i_output = test_aporian_w_game_history_df.query_game_history(
+            "accuracy", ["time_class"]
+        )
         i_expected = ["time_class"]
         index = i_output.index.names
         assert index == i_expected
 
-        mi_output = test_aporian_w_game_history_df.query_game_history("accuracy", ["time_class", "colour"])
+        mi_output = test_aporian_w_game_history_df.query_game_history(
+            "accuracy", ["time_class", "colour"]
+        )
         mi_expected = ["time_class", "colour"]
         multi_index = mi_output.index.names
         assert multi_index == mi_expected
 
-    @pytest.mark.it("If 'op_rating' in dimensions, rounds ratings to nearest 100th and groups them")
+    @pytest.mark.it(
+        "If 'op_rating' in dimensions, rounds ratings to nearest 100th and groups them"
+    )
     def test_df_op_rating(self, test_aporian_w_game_history_df):
-        output = test_aporian_w_game_history_df.query_game_history("accuracy", ["op_rating"])
+        output = test_aporian_w_game_history_df.query_game_history(
+            "accuracy", ["op_rating"]
+        )
         ratings = output.index.to_list()
         assert all(rating % 100 == 0 for rating in ratings)
 
     @pytest.mark.it("If 'accuracy' selected as fact, df has 'accuracy' column")
     def test_df_has_accuracy_col(self, test_aporian_w_game_history_df):
-        output = test_aporian_w_game_history_df.query_game_history("accuracy", ["time_class", "colour"])
+        output = test_aporian_w_game_history_df.query_game_history(
+            "accuracy", ["time_class", "colour"]
+        )
         expected = ["accuracy"]
         col = output.columns.to_list()
         assert col == expected
-        
+
     @pytest.mark.it("If 'result' selected as fact, df has win/draw/loss % columns")
     def test_df_has_result_cols(self, test_aporian_w_game_history_df):
-        output = test_aporian_w_game_history_df.query_game_history("result", ["op_rating"])
+        output = test_aporian_w_game_history_df.query_game_history(
+            "result", ["op_rating"]
+        )
         expected = ["win_percentage", "draw_percentage", "loss_percentage"]
         assert output.columns.to_list() == expected
-
 
     @pytest.mark.it("Works for all possible combinations of accuracy and dimensions")
     def test_accuracy_combinations(self, test_aporian_w_game_history_df):
         dimensions = ["colour", "time_class", "op_rating", "result", "eco"]
         for x in range(1, len(dimensions) + 1):
             for combination in combinations(dimensions, x):
-                test_aporian_w_game_history_df.query_game_history("accuracy", list(combination))
+                test_aporian_w_game_history_df.query_game_history(
+                    "accuracy", list(combination)
+                )
                 assert True
 
-    @pytest.mark.it("Works for all possible combinations of result and dimensions (excluding result)")
+    @pytest.mark.it(
+        "Works for all possible combinations of result and dimensions (excluding result)"
+    )
     def test_result_combinations(self, test_aporian_w_game_history_df):
         dimensions = ["colour", "time_class", "op_rating", "eco"]
         for x in range(1, len(dimensions) + 1):
             for combination in combinations(dimensions, x):
-                test_aporian_w_game_history_df.query_game_history("result", list(combination))
+                test_aporian_w_game_history_df.query_game_history(
+                    "result", list(combination)
+                )
                 assert True
-

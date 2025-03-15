@@ -41,7 +41,7 @@ if comparison_type == "Myself":
     st.write("Here are your best ever ratings compared with your current ratings.")
     current_v_best_df = user.get_current_v_best()
     st.bar_chart(current_v_best_df, color=["#FF0000", "#0000FF"], stack=False)
-    
+
     asyncio.run(user.get_game_history())
     user.wrangle_game_history_df()
 
