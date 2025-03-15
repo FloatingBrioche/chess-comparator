@@ -342,7 +342,6 @@ class TestQueryGameHistory:
         dimensions = ["colour", "time_class", "op_rating", "result", "eco"]
         for x in range(1, len(dimensions) + 1):
             for combination in combinations(dimensions, x):
-                print(f"{combination=}")
                 test_aporian_w_game_history_df.query_game_history("accuracy", list(combination))
                 assert True
 
@@ -351,7 +350,6 @@ class TestQueryGameHistory:
         dimensions = ["colour", "time_class", "op_rating", "eco"]
         for x in range(1, len(dimensions) + 1):
             for combination in combinations(dimensions, x):
-                print(f"{combination=}")
                 test_aporian_w_game_history_df.query_game_history("result", list(combination))
                 assert True
 
