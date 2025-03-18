@@ -14,12 +14,12 @@ other = None
 final_section = False
 
 
-st.title(":chess_pawn: :rainbow[Chess.com Stats Comparator] :chess_pawn:")
+st.header(":chess_pawn: :rainbow[Chess.com Stats Comparator] :chess_pawn:")
 st.divider()
 
 with st.sidebar: 
     st.write(
-        "Welcome to the Chess.com Stats Comparator, an app that let's you check out and visualise your Chess.com stats and compare them against other players."
+        "Welcome to the Chess.com Stats Comparator, an app that let's you explore and visualise your Chess.com stats and compare them against other players."
     )
     st.text_input("Enter your Chess.com username to get started.", key="username")
     username = st.session_state.username
@@ -40,16 +40,49 @@ with st.sidebar:
             asyncio.run(user.get_game_history())
             user_game_history_df = user.wrangle_game_history_df()
             user.add_accuracy_stats()
+            match usage:
+                case "Check out my stats":
+                    st.write("A wise choice. Comparison is the thief of joy, after all.")
             
 
 ### Check out my stats        
-
 if usage == "Check out my stats":
-    st.write("A wise choice. Comparison is the thief of joy, after all.")
-    st.dataframe(user_game_history_df)
+
+
+    st.subheader(":rainbow[Openings]")
+    # 
+    # opening counts
+    opening_count_df = user.query_game_history("result", ["eco"])
+    st.dataframe(opening_count_df)
+    # best openings by result
+
+    # best openings by accuracy
+    
+
+    st.subheader(":rainbow[Opponents]")
+    # 
+    # opponent counts
+    # top-5 wins by rating differential
+    # results by opponent
+    # accuracy by opponent
+
+
+    st.subheader(":rainbow[Accuracy]")
+    # top-5 accuracy games
+    # accuracy by opening
+    # accuracy by opponent
+    # accuracy by op_rating
+
+    st.subheader(":rainbow[History]")
+
     st.write("Here are your best ever ratings compared with your current ratings.")
     current_v_best_df = user.get_current_v_best()
     st.bar_chart(current_v_best_df, color=["#FF0000", "#0000FF"], stack=False)
+
+    st.dataframe(user_game_history_df)
+    # current vs. best ratings
+    # ratings history
+    # full game history
 
 ### Compare stats
 
@@ -59,7 +92,6 @@ if usage == "Compare stats":
         select_options,
         index=None,
     )
-
 
     if comparison_type == "Another Chess.com user":
         st.text_input("Please enter their Chess.com username", key="other_username")
