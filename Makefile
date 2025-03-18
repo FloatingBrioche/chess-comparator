@@ -40,7 +40,7 @@ requirements: create-environment
 
 ## Run the black code check
 run-black:
-	$(call execute_in_env, black  ./main.py ./helpers/*.py ./test/*.py)
+	$(call execute_in_env, black  ./app.py ./helpers/*.py ./test/*.py)
 
 ## Run the unit tests
 unit-test:
