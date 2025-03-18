@@ -22,7 +22,6 @@ indices = {
 }
 
 select_options = [
-    "Myself",
     "Another Chess.com user",
     "A random grandmaster",
     "A random person from my country",
