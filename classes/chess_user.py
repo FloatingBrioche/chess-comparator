@@ -246,15 +246,15 @@ class ChessUser:
             q_df = (
                 q_df.groupby([*dims])
                 .agg(
-                    win_percentage=(
+                    win_pc=(
                         "result",
                         lambda x: sum(y == "win" for y in x) / len(x) * 100,
                     ),
-                    draw_percentage=(
+                    draw_pc=(
                         "result",
                         lambda x: sum(y == "draw" for y in x) / len(x) * 100,
                     ),
-                    loss_percentage=(
+                    loss_pc=(
                         "result",
                         lambda x: sum(y == "loss" for y in x) / len(x) * 100,
                     ),

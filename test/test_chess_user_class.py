@@ -348,7 +348,7 @@ class TestQueryGameHistory:
         output = test_aporian_w_game_history_df.query_game_history(
             "result", ["op_rating"]
         )
-        expected = ["win_percentage", "draw_percentage", "loss_percentage"]
+        expected = ["win_pc", "draw_pc", "loss_pc"]
         assert output.columns.to_list() == expected
 
     @pytest.mark.it("Works for all possible combinations of accuracy and dimensions")
