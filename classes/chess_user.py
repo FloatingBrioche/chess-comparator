@@ -132,6 +132,7 @@ class ChessUser:
             "rating": [],
             "opponent": [],
             "op_rating": [],
+            "rating_differential": [],
             "result": [],
             "result_type": [],
             "eco": [],
@@ -212,6 +213,9 @@ class ChessUser:
                     accumulator["result"].append("loss")
                     accumulator["result_type"].append(black["result"])
 
+            rating_dif = accumulator['rating'][-1] - accumulator["op_rating"][-1]
+            accumulator["rating_differential"].append(rating_dif)
+
         self.game_history_df = pd.DataFrame(accumulator)
 
         return self.game_history_df
@@ -232,8 +236,11 @@ class ChessUser:
     ) -> pd.DataFrame:
 
         q_df = self.game_history_df.copy()
+        
         if rated_only:
             q_df = q_df.query("`rated`  == True")
+        
+
         q_df = q_df[[*dims, fact]]
 
         if "op_rating" in dims:
@@ -242,7 +249,7 @@ class ChessUser:
         if fact == "accuracy":
             q_df = q_df.query("accuracy.notna()")
             q_df = q_df.groupby([*dims]).mean(numeric_only=True).round(2)
-        else:
+        elif fact == 'result':
             q_df = (
                 q_df.groupby([*dims])
                 .agg(
@@ -261,8 +268,21 @@ class ChessUser:
                 )
                 .round(1)
             )
+        elif fact == 'url':
+            q_df = q_df.groupby([*dims]).count()
+            q_df = q_df.rename(columns={'url': 'games_played'}).sort_values(by='games_played', ascending=False)
+
+        
 
         if q_df.index.name != "op_rating" and fact == "accuracy":
             return q_df.sort_values(by=fact, ascending=False)
+        
         else:
             return q_df
+
+    def get_top_5(self, col: str, asc: bool = False, rated_only: bool = True):
+
+        top_5_df = self.game_history_df.copy()
+        top_5_df.query("result == 'win'", inplace=True)
+
+        return top_5_df.sort_values(by=col, ascending=asc).head()

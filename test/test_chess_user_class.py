@@ -250,7 +250,7 @@ class TestWrangleGameHistory:
     def test_df_columns(self, test_aporian_w_game_history):
         output = test_aporian_w_game_history.wrangle_game_history_df()
         cols = output.columns.tolist()
-        assert output.shape[1] == 13
+        assert output.shape[1] == 14
         assert cols == [
             "colour",
             "time_class",
@@ -259,6 +259,7 @@ class TestWrangleGameHistory:
             "rating",
             "opponent",
             "op_rating",
+            "rating_differential",
             "result",
             "result_type",
             "eco",
@@ -351,6 +352,14 @@ class TestQueryGameHistory:
         expected = ["win_pc", "draw_pc", "loss_pc"]
         assert output.columns.to_list() == expected
 
+    @pytest.mark.it("If 'url' selected as fact, df has games_played column")
+    def test_df_has_result_cols(self, test_aporian_w_game_history_df):
+        output = test_aporian_w_game_history_df.query_game_history(
+            "url", ["op_rating"]
+        )
+        expected = ["games_played"]
+        assert output.columns.to_list() == expected
+
     @pytest.mark.it("Works for all possible combinations of accuracy and dimensions")
     def test_accuracy_combinations(self, test_aporian_w_game_history_df):
         dimensions = ["colour", "time_class", "op_rating", "result", "eco"]
@@ -358,6 +367,16 @@ class TestQueryGameHistory:
             for combination in combinations(dimensions, x):
                 test_aporian_w_game_history_df.query_game_history(
                     "accuracy", list(combination)
+                )
+                assert True
+
+    @pytest.mark.it("Works for all possible combinations of url and dimensions")
+    def test_url_combinations(self, test_aporian_w_game_history_df):
+        dimensions = ["colour", "time_class", "op_rating", "result", "eco"]
+        for x in range(1, len(dimensions) + 1):
+            for combination in combinations(dimensions, x):
+                test_aporian_w_game_history_df.query_game_history(
+                    "url", list(combination)
                 )
                 assert True
 
@@ -372,3 +391,9 @@ class TestQueryGameHistory:
                     "result", list(combination)
                 )
                 assert True
+
+class TestGetTop5:
+    @pytest.mark.it("Returns data frame")
+    def test_returns_df(self, test_aporian_w_game_history_df):
+        output = test_aporian_w_game_history_df.get_top_5("rating_differential")
+        assert isinstance(output, pd.DataFrame)
