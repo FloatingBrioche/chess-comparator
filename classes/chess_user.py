@@ -159,66 +159,77 @@ class ChessUser:
             "threecheck",
             "bughousepartnerlose",
         ]
+        try:
+            for game in self.game_history:
 
-        for game in self.game_history:
-
-            accumulator["time_class"].append(game["time_class"])
-            accumulator["time_control"].append(game["time_control"])
-            accumulator["rated"].append(game["rated"])
-            accumulator["eco"].append(game["eco"].split("/")[-1])
-            accumulator["url"].append(game["url"])
-
-            white, black = game["white"], game["black"]
-            accuracies = game.get("accuracies", None)
-
-            if white["username"] == self.username:
-                accumulator["colour"].append("white")
-                accumulator["rating"].append(white["rating"])
-                accumulator["opponent"].append(black["username"])
-                accumulator["op_rating"].append(black["rating"])
-                accumulator["accuracy"].append(
-                    accuracies["white"] if accuracies else None
-                )
-                accumulator["op_accuracy"].append(
-                    accuracies["black"] if accuracies else None
-                )
-                if white["result"] == "win":
-                    accumulator["result"].append("win")
-                    accumulator["result_type"].append(black["result"])
-                elif white["result"] in draws:
-                    accumulator["result"].append("draw")
-                    accumulator["result_type"].append(white["result"])
+                accumulator["time_class"].append(game["time_class"])
+                accumulator["time_control"].append(game["time_control"])
+                accumulator["rated"].append(game["rated"])
+                accumulator["url"].append(game["url"])
+                
+                if game.get("eco"):
+                    accumulator["eco"].append(game["eco"].split("/")[-1])
                 else:
-                    accumulator["result"].append("loss")
-                    accumulator["result_type"].append(white["result"])
+                    accumulator["eco"].append("Undefined")
+                
 
-            else:
-                accumulator["colour"].append("black")
-                accumulator["rating"].append(black["rating"])
-                accumulator["opponent"].append(white["username"])
-                accumulator["op_rating"].append(white["rating"])
-                accumulator["accuracy"].append(
-                    accuracies["black"] if accuracies else None
-                )
-                accumulator["op_accuracy"].append(
-                    accuracies["white"] if accuracies else None
-                )
-                if black["result"] == "win":
-                    accumulator["result"].append("win")
-                    accumulator["result_type"].append(white["result"])
-                elif black["result"] in draws:
-                    accumulator["result"].append("draw")
-                    accumulator["result_type"].append(black["result"])
+                white, black = game["white"], game["black"]
+                accuracies = game.get("accuracies", None)
+
+                if white["username"] == self.username:
+                    accumulator["colour"].append("white")
+                    accumulator["rating"].append(white["rating"])
+                    accumulator["opponent"].append(black["username"])
+                    accumulator["op_rating"].append(black["rating"])
+                    accumulator["accuracy"].append(
+                        accuracies["white"] if accuracies else None
+                    )
+                    accumulator["op_accuracy"].append(
+                        accuracies["black"] if accuracies else None
+                    )
+                    if white["result"] == "win":
+                        accumulator["result"].append("win")
+                        accumulator["result_type"].append(black["result"])
+                    elif white["result"] in draws:
+                        accumulator["result"].append("draw")
+                        accumulator["result_type"].append(white["result"])
+                    else:
+                        accumulator["result"].append("loss")
+                        accumulator["result_type"].append(white["result"])
+
                 else:
-                    accumulator["result"].append("loss")
-                    accumulator["result_type"].append(black["result"])
+                    accumulator["colour"].append("black")
+                    accumulator["rating"].append(black["rating"])
+                    accumulator["opponent"].append(white["username"])
+                    accumulator["op_rating"].append(white["rating"])
+                    accumulator["accuracy"].append(
+                        accuracies["black"] if accuracies else None
+                    )
+                    accumulator["op_accuracy"].append(
+                        accuracies["white"] if accuracies else None
+                    )
+                    if black["result"] == "win":
+                        accumulator["result"].append("win")
+                        accumulator["result_type"].append(white["result"])
+                    elif black["result"] in draws:
+                        accumulator["result"].append("draw")
+                        accumulator["result_type"].append(black["result"])
+                    else:
+                        accumulator["result"].append("loss")
+                        accumulator["result_type"].append(black["result"])
 
-            rating_dif = accumulator['rating'][-1] - accumulator["op_rating"][-1]
-            accumulator["rating_differential"].append(rating_dif)
+                rating_dif = accumulator['rating'][-1] - accumulator["op_rating"][-1]
+                accumulator["rating_differential"].append(rating_dif)
 
-        self.game_history_df = pd.DataFrame(accumulator)
+            self.game_history_df = pd.DataFrame(accumulator)
 
-        return self.game_history_df
+            return self.game_history_df
+        
+        except KeyError as e:
+            data_logger.error(
+                f"Key error in wrangle_game_history_df: {str(e)}, game keys = {game.keys()}"
+            )
+            raise e
 
     def add_accuracy_stats(self):
         accuracies = self.game_history_df["accuracy"]
