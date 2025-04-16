@@ -192,7 +192,11 @@ if usage == "Check out my stats":
             st.write("Here is your rating history.")
         # full game history
         if hist_selection == "My full game history":
+            st.write(f"You've played {user.game_history_df.shape[0]} games. Here they are in all their glory!")
             st.dataframe(user_game_history_df)
+            st.caption(
+                "Click the column headers to sort or hide the columns, and see the other table options by hovering over the top-right of the table."
+            )
 
 ### Compare stats
 
