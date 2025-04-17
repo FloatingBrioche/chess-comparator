@@ -67,18 +67,17 @@ if usage == "Check out my stats":
     tab_openings, tab_opponents, tab_accuracy, tab_history = st.tabs(
         ["**Openings**", "**Opponents**", "**Accuracy**", "**History**"]
     )
-    dims = []
     
-    def add_select_dim_options():
+    def add_select_dim_options(section: str):
         col_1, col_2, col_3 = st.columns(3)
         with col_1:
-            if include_colour := st.checkbox("Include colour?", value=False):
+            if include_colour := st.checkbox("Include colour?", value=False, key=f"{section}_colour"):
                 dims.append("colour")
         with col_2:
-            if include_time_class := st.checkbox("Include time class?", value=False):
+            if include_time_class := st.checkbox("Include time class?", value=False, key=f"{section}_time_class"):
                 dims.append("time_class")
         with col_3:
-            if include_op_rating := st.checkbox("Include opponent rating?", value=False):
+            if include_op_rating := st.checkbox("Include opponent rating?", value=False, key=f"{section}_op_rating"):
                 dims.append("op_rating")
         
     with tab_openings:
@@ -96,10 +95,14 @@ if usage == "Check out my stats":
         )
         # opening counts
         if openings_selection == "My most played openings":
+            dims = []
+            add_select_dim_options("most_played_openings")
             opening_counts_df = user.query_game_history("url", ["eco", *dims])
             st.dataframe(opening_counts_df)
         # best openings by result
         elif openings_selection == "My most succesful openings":
+            dims = []
+            add_select_dim_options("most_succesful_openings")
             opening_results_df = (
                 user.query_game_history("result", ["eco", *dims])
                 .sort_values(by="win_pc", ascending=False)
@@ -108,6 +111,8 @@ if usage == "Check out my stats":
             st.dataframe(opening_results_df)
         # best openings by accuracy
         elif openings_selection == "My most accurate openings":
+            dims = []
+            add_select_dim_options("most_accurate_openings")
             opening_accuracies_df = (
                 user.query_game_history("accuracy", ["eco", *dims])
                 .sort_values(by="accuracy", ascending=False)
@@ -122,7 +127,7 @@ if usage == "Check out my stats":
             "What would you like to see here?",
             [
                 "My most played opponents",
-                "My top-5 wins",
+                "My top-5 wins by rating differential",
                 "My win percentages per opponent",
                 "My accuracy per opponent",
             ],
@@ -130,18 +135,24 @@ if usage == "Check out my stats":
         )
         # opponent counts
         if opponents_selection == "My most played opponents":
+            dims = []
+            add_select_dim_options("most_played_opponents")
             opponent_counts_df = user.query_game_history("url", ["opponent", *dims]).head(10)
             st.dataframe(opponent_counts_df)
         # top-5 wins by rating differential
-        if opponents_selection == "My top-5 wins":
+        if opponents_selection == "My top-5 wins by rating differential":
             top_5_by_rating = user.get_top_5("rating_differential", asc=True)
-            st.dataframe(top_5_by_rating)
+            st.dataframe(top_5_by_rating, hide_index=True)
         # results by opponent
         if opponents_selection == "My win percentages per opponent":
+            dims = []
+            add_select_dim_options("win_perc_per_opponent")
             wins_by_opp_df = user.query_game_history("result", ["opponent", *dims])
             st.dataframe(wins_by_opp_df)
         # accuracy by opponent
         if opponents_selection == "My accuracy per opponent":
+            dims = []
+            add_select_dim_options("accuracy_per_opponent")
             acc_by_opp_df = user.query_game_history("accuracy", ["opponent", *dims])
             st.dataframe(acc_by_opp_df)
 
@@ -159,15 +170,16 @@ if usage == "Check out my stats":
         )  # top-5 wins by accuracy games
         if acc_selection == "My most accurate wins":
             top_5_by_accuracy = user.get_top_5("accuracy")
-            st.dataframe(top_5_by_accuracy)
+            st.dataframe(top_5_by_accuracy, hide_index=True)
         # accuracy by opening
         if acc_selection == "My accuracy per opening":
-            add_select_dim_options()
+            dims = []
+            add_select_dim_options("accuracy_per_opening")
             acc_by_openings = user.query_game_history("accuracy", ["eco", *dims])
             st.dataframe(acc_by_openings)
         # accuracy by op_rating
         if acc_selection == "My accuracy per opponent rating":
-            dims = [dim for dim in dims if dim != "op_rating"]
+            dims = []
             acc_by_opp_rat = user.query_game_history("accuracy", ["op_rating", *dims])
             st.line_chart(acc_by_opp_rat, x_label="Opponent rating", y_label="Accuracy", color="#5D3FD3")
 
