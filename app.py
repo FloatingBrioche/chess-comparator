@@ -68,16 +68,18 @@ if usage == "Check out my stats":
         ["**Openings**", "**Opponents**", "**Accuracy**", "**History**"]
     )
     dims = []
-    col_1, col_2, col_3 = st.columns(3)
-    with col_1:
-        if include_colour := st.checkbox("Include colour?", value=False):
-            dims.append("colour")
-    with col_2:
-        if include_time_class := st.checkbox("Include time class?", value=False):
-            dims.append("time_class")
-    with col_3:
-        if include_op_rating := st.checkbox("Include opponent rating?", value=False):
-            dims.append("op_rating")
+    
+    def add_select_dim_options():
+        col_1, col_2, col_3 = st.columns(3)
+        with col_1:
+            if include_colour := st.checkbox("Include colour?", value=False):
+                dims.append("colour")
+        with col_2:
+            if include_time_class := st.checkbox("Include time class?", value=False):
+                dims.append("time_class")
+        with col_3:
+            if include_op_rating := st.checkbox("Include opponent rating?", value=False):
+                dims.append("op_rating")
         
     with tab_openings:
         st.subheader(":rainbow[Openings]")
@@ -160,13 +162,14 @@ if usage == "Check out my stats":
             st.dataframe(top_5_by_accuracy)
         # accuracy by opening
         if acc_selection == "My accuracy per opening":
+            add_select_dim_options()
             acc_by_openings = user.query_game_history("accuracy", ["eco", *dims])
             st.dataframe(acc_by_openings)
         # accuracy by op_rating
         if acc_selection == "My accuracy per opponent rating":
             dims = [dim for dim in dims if dim != "op_rating"]
             acc_by_opp_rat = user.query_game_history("accuracy", ["op_rating", *dims])
-            st.dataframe(acc_by_opp_rat)
+            st.line_chart(acc_by_opp_rat, x_label="Opponent rating", y_label="Accuracy", color="#5D3FD3")
 
     with tab_history:
         st.subheader(":rainbow[History]")
