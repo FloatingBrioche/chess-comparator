@@ -303,7 +303,7 @@ if usage == "Compare stats":
         comparison.add_avg_rating()
 
         st.bar_chart(
-            comparison.df.filter(items=indices["ratings"], axis=0), stack=False
+            comparison.df.filter(items=indices["ratings"], axis=0), stack=False, horizontal=True
         )
 
         st.dataframe(comparison.get_head_to_head())
