@@ -65,7 +65,7 @@ with st.sidebar:
 if usage == "Check out my stats":
 
     tab_openings, tab_opponents, tab_accuracy, tab_history = st.tabs(
-        ["**Openings**", "**Opponents**", "**Accuracy**", "**History**"]
+        ["**Openings** :gift:", "**Opponents** :vs:", "**Accuracy** :mag:", "**History** :birthday:"]
     )
     
     def add_select_dim_options(section: str):
