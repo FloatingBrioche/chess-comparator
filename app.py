@@ -174,7 +174,7 @@ if usage == "Check out my stats":
         if acc_selection == "My accuracy per opening":
             dims = []
             add_select_dim_options("accuracy_per_opening")
-            acc_by_openings = user.query_game_history("accuracy", ["eco", *dims])
+            acc_by_openings = user.query_game_history("accuracy", ["eco", *dims]).sort_values(by="eco", ascending=True)
             st.dataframe(acc_by_openings)
         # accuracy by op_rating
         if acc_selection == "My accuracy per opponent rating":
