@@ -136,9 +136,8 @@ if usage == "Check out my stats":
         # opponent counts
         if opponents_selection == "My most played opponents":
             dims = []
-            add_select_dim_options("most_played_opponents")
             opponent_counts_df = user.query_game_history("url", ["opponent", *dims]).head(10)
-            st.dataframe(opponent_counts_df)
+            st.bar_chart(opponent_counts_df, horizontal=True, x_label="Games played", color="#5D3FD3")
         # top-5 wins by rating differential
         if opponents_selection == "My top-5 wins by rating differential":
             top_5_by_rating = user.get_top_5("rating_differential", asc=True)
