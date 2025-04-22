@@ -291,9 +291,9 @@ class ChessUser:
         else:
             return q_df
 
-    def get_top_5(self, col: str, asc: bool = False, rated_only: bool = True):
+    def get_top_10(self, col: str, asc: bool = False, rated_only: bool = True):
 
-        top_5_df = self.game_history_df.copy()
-        top_5_df.query("result == 'win'", inplace=True)
+        top_10_df = self.game_history_df.copy()
+        top_10_df.query("result == 'win'", inplace=True)
 
-        return top_5_df.sort_values(by=col, ascending=asc).head()
+        return top_10_df.sort_values(by=col, ascending=asc).head(10)

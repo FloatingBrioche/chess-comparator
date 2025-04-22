@@ -392,8 +392,8 @@ class TestQueryGameHistory:
                 )
                 assert True
 
-class TestGetTop5:
+class TestGetTop10:
     @pytest.mark.it("Returns data frame")
     def test_returns_df(self, test_aporian_w_game_history_df):
-        output = test_aporian_w_game_history_df.get_top_5("rating_differential")
+        output = test_aporian_w_game_history_df.get_top_10("rating_differential")
         assert isinstance(output, pd.DataFrame)
