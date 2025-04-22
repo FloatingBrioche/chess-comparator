@@ -200,7 +200,7 @@ if usage == "Check out my stats":
                 "Here are your best ever ratings compared with your current ratings."
             )
             current_v_best_df = user.get_current_v_best()
-            st.bar_chart(current_v_best_df, color=["#FF0000", "#0000FF"], stack=False)
+            st.bar_chart(current_v_best_df, color=["#FBDA00", "#5D3FD3"], stack=False, horizontal=True)
         # ratings history
         if hist_selection == "My rating history":
             st.write("Here is your rating history.")
