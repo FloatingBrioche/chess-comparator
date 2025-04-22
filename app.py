@@ -127,7 +127,7 @@ if usage == "Check out my stats":
             "What would you like to see here?",
             [
                 "My most played opponents",
-                "My top-5 wins by rating differential",
+                "My top-10 wins by rating differential",
                 "My win percentages per opponent",
                 "My accuracy per opponent",
             ],
@@ -139,9 +139,9 @@ if usage == "Check out my stats":
             opponent_counts_df = user.query_game_history("url", ["opponent", *dims]).head(10)
             st.bar_chart(opponent_counts_df, horizontal=True, x_label="Games played", color="#5D3FD3")
         # top-5 wins by rating differential
-        if opponents_selection == "My top-5 wins by rating differential":
-            top_5_by_rating = user.get_top_5("rating_differential", asc=True)
-            st.dataframe(top_5_by_rating, hide_index=True)
+        if opponents_selection == "My top-10 wins by rating differential":
+            top_10_by_rating = user.get_top_10("rating_differential", asc=True)
+            st.dataframe(top_10_by_rating, hide_index=True)
         # results by opponent
         if opponents_selection == "My win percentages per opponent":
             dims = []
@@ -168,8 +168,8 @@ if usage == "Check out my stats":
             index=None,
         )  # top-5 wins by accuracy games
         if acc_selection == "My most accurate wins":
-            top_5_by_accuracy = user.get_top_5("accuracy")
-            st.dataframe(top_5_by_accuracy, hide_index=True)
+            top_10_by_accuracy = user.get_top_10("accuracy")
+            st.dataframe(top_10_by_accuracy, hide_index=True)
         # accuracy by opening
         if acc_selection == "My accuracy per opening":
             dims = []
