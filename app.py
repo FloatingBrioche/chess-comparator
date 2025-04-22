@@ -146,13 +146,13 @@ if usage == "Check out my stats":
         if opponents_selection == "My win percentages per opponent":
             dims = []
             add_select_dim_options("win_perc_per_opponent")
-            wins_by_opp_df = user.query_game_history("result", ["opponent", *dims])
+            wins_by_opp_df = user.query_game_history("result", ["opponent", *dims]).sort_values(by="opponent", ascending=True)
             st.dataframe(wins_by_opp_df)
         # accuracy by opponent
         if opponents_selection == "My accuracy per opponent":
             dims = []
             add_select_dim_options("accuracy_per_opponent")
-            acc_by_opp_df = user.query_game_history("accuracy", ["opponent", *dims])
+            acc_by_opp_df = user.query_game_history("accuracy", ["opponent", *dims]).sort_values(by="opponent", ascending=True)
             st.dataframe(acc_by_opp_df)
 
     with tab_accuracy:
