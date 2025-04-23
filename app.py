@@ -203,7 +203,20 @@ if usage == "Check out my stats":
             st.bar_chart(current_v_best_df, color=["#FBDA00", "#5D3FD3"], stack=False, horizontal=True)
         # ratings history
         if hist_selection == "My rating history":
-            st.write("Here is your rating history.")
+            time_selection = st.selectbox(
+            "Which time class do you want to see?",
+            [
+                "Bullet",
+                "Blitz",
+                "Rapid",
+                "Daily"
+            ],
+            index=None,
+        )
+            if time_selection: 
+                rating_history_df = user.game_history_df[user.game_history_df['time_class'] == time_selection.lower()]['rating'].reset_index(drop=True)
+                st.line_chart(rating_history_df)
+                st.write("No te preocupes. Cada vida tiene sus altibajos.")
         # full game history
         if hist_selection == "My full game history":
             st.write(f"You've played {user.game_history_df.shape[0]} games. Here they are in all their glory!")
