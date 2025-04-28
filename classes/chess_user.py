@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 import asyncio
 import httpx
@@ -169,6 +171,8 @@ class ChessUser:
                 
                 if game.get("eco"):
                     accumulator["eco"].append(game["eco"].split("/")[-1])
+                elif (eco_match := re.search(r'openings\/(.*)"]\n\[UTCDate', game["pgn"])):
+                    accumulator["eco"].append(eco_match.group(1))
                 else:
                     accumulator["eco"].append("Undefined")
                 
