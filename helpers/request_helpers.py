@@ -1,16 +1,19 @@
-from requests import get as get_request
-from requests.exceptions import RequestException
-from httpx import RequestError
 from os.path import isfile
 from json import load, dump
 from random import choice
+
+from requests import get as get_request
+from requests.exceptions import RequestException
+from httpx import RequestError
+import streamlit as st
+
 from helpers.loggers import request_logger
 from helpers.vars import old_puzzle
 
 
 headers = {"user-agent": "chess-comparator"}
 
-
+@st.cache_data
 def get_profile(username: str) -> dict | None:
     """
     Retrieves Chess.com profile via API using username.
@@ -43,7 +46,7 @@ def get_profile(username: str) -> dict | None:
     except RequestException as e:
         request_logger.error(f"Request error: {e}")
 
-
+@st.cache_data
 def get_stats(username: str) -> dict | None:
     """
     Retrieves Chess.com stats via API using username.
@@ -78,6 +81,7 @@ def get_stats(username: str) -> dict | None:
         request_logger.error(f"Request error: {repr(e)}")
 
 
+@st.cache_data
 def get_gms() -> list:
     """
     Returns a list of Chess.coms GMs retrieved via API.
@@ -110,7 +114,7 @@ def get_gms() -> list:
     except RequestException as e:
         request_logger.error(f"Request error: {e}")
 
-
+@st.cache_data
 def get_compatriots(iso: str):
     """
     Returns a list of Chess.coms users retrieve via API.
@@ -140,6 +144,7 @@ def get_compatriots(iso: str):
 
     except RequestException as e:
         request_logger.error(f"Request error: {e}")
+
 
 
 def get_random_gm() -> str:
@@ -239,7 +244,7 @@ def get_puzzle():
     except RequestException as e:
         request_logger.error(f"Request error: {e}")
 
-
+@st.cache_data
 def get_archives(username: str) -> list | None:
     """
     Returns list of Chess.com monthly archives.
@@ -275,7 +280,7 @@ def get_archives(username: str) -> list | None:
     except RequestException as e:
         request_logger.error(f"Request error: {e}")
 
-
+@st.cache_data
 async def get_archive(url, client):
     """
     Returns list of Chess.com games for given month.
