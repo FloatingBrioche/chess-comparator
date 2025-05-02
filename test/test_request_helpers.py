@@ -1,8 +1,24 @@
+from unittest.mock import patch, Mock, AsyncMock
+
 import pytest
 import httpx
-from unittest.mock import patch, Mock, AsyncMock
 from requests.exceptions import RequestException
+
+
+def mock_streamlit_cache_data(func):
+    """
+    Mock the st.cache_data decorator for testing purposes.
+    """
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+st_cache_patcher = patch("streamlit.cache_data", mock_streamlit_cache_data)
+
+st_cache_patcher.start()
+
 from helpers.request_helpers import (
+    get_request,
     get_profile,
     get_stats,
     get_gms,
@@ -13,6 +29,8 @@ from helpers.request_helpers import (
     get_archives,
     get_archive,
 )
+
+
 
 
 @pytest.fixture
@@ -186,3 +204,6 @@ class TestGetArchive:
         url = "egg"
         result = await get_archive(url, client)
         assert "Request error" in caplog.text
+
+
+st_cache_patcher.stop()
