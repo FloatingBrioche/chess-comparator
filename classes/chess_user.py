@@ -6,7 +6,7 @@ import httpx
 import numpy
 
 from helpers.loggers import data_logger
-from helpers.request_helpers import get_profile, get_stats, get_archives, get_archive
+from helpers.request_helpers import get_profile, get_stats, get_archives, get_archive, return_game_history
 
 
 class ChessUser:
@@ -114,15 +114,10 @@ class ChessUser:
             )
             raise e
 
-    async def get_game_history(self):
-        async with httpx.AsyncClient() as client:
-            archives = get_archives(self.username)
-            tasks = [get_archive(url, client) for url in archives]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        monthly_archives = [result for result in results if isinstance(result, list)]
-        failures = [result for result in results if not isinstance(result, list)]
-        self.game_history = [y for x in monthly_archives for y in x]
+    def load_game_history(self):
+        self.game_history = return_game_history(self.username)
+
 
     def wrangle_game_history_df(self):
 

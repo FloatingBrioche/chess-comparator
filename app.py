@@ -1,5 +1,4 @@
 import streamlit as st
-import asyncio
 
 from classes.chess_user import ChessUser
 from classes.comparison import Comparison
@@ -39,7 +38,7 @@ with st.sidebar:
                 ["Check out my stats", "Compare stats"],
                 index=None,
             )
-            asyncio.run(user.get_game_history())
+            user.load_game_history()
             user_game_history_df = user.wrangle_game_history_df()
             user.add_accuracy_stats()
             match usage:

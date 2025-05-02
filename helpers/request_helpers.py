@@ -4,8 +4,9 @@ from random import choice
 
 from requests import get as get_request
 from requests.exceptions import RequestException
-from httpx import RequestError
+from httpx import AsyncClient, RequestError
 import streamlit as st
+import asyncio
 
 from helpers.loggers import request_logger
 from helpers.vars import old_puzzle
@@ -280,7 +281,7 @@ def get_archives(username: str) -> list | None:
     except RequestException as e:
         request_logger.error(f"Request error: {e}")
 
-@st.cache_data
+
 async def get_archive(url, client):
     """
     Returns list of Chess.com games for given month.
@@ -314,3 +315,27 @@ async def get_archive(url, client):
 
     except RequestError as e:
         request_logger.error(f"Request error: {str(e)}, url = {url}")
+
+
+async def get_game_history(username: str) -> list:
+    async with AsyncClient() as client:
+        archives = get_archives(username)
+        tasks = [get_archive(url, client) for url in archives]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    monthly_archives = [result for result in results if isinstance(result, list)]
+    failures = [result for result in results if not isinstance(result, list)]
+    game_history = [y for x in monthly_archives for y in x]
+
+    return game_history
+
+
+@st.cache_data
+def return_game_history(username: str) -> list:
+    """
+    Returns list of Chess.com games for given user.
+    
+    Function is a wrapper for the get_game_history function
+    to allow for the use of st.cache_data."""
+    
+    return asyncio.run(get_game_history(username))
