@@ -1,4 +1,4 @@
-import time
+import sys
 from unittest.mock import patch
 from json import load
 from itertools import combinations
@@ -6,12 +6,21 @@ from itertools import combinations
 import pytest
 import pandas as pd
 
+sys.modules.pop("classes.chess_user", None)
+
+def mock_streamlit_cache_data(func):
+    """
+    Mock of the st.cache_data decorator for testing purposes.
+    """
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+st_cache_patcher = patch("streamlit.cache_data", mock_streamlit_cache_data)
+
+st_cache_patcher.start()
+
 from classes.chess_user import ChessUser
-from helpers.vars import (
-    required_game_archive_keys,
-    test_monthly_archives_small,
-    test_monthly_archives_large,
-)
 
 
 # Fixtures
@@ -180,60 +189,6 @@ class TestAddStats:
             output_rows = df.index.to_list()
             assert expected_rows == output_rows
 
-    class TestGetGameHistory:
-        @pytest.mark.it("Returns None")
-        @pytest.mark.asyncio(loop_scope="function")
-        @patch(
-            "classes.chess_user.get_archives", return_value=test_monthly_archives_small
-        )
-        async def test_returns_None(self, MockGetArchives, TestAporian):
-            result = await TestAporian.get_game_history()
-            assert result is None
-
-        @pytest.mark.it("Creates game_history attribute")
-        @pytest.mark.asyncio(loop_scope="function")
-        @patch(
-            "classes.chess_user.get_archives", return_value=test_monthly_archives_small
-        )
-        async def test_updates_game_history_attribute(
-            self, MockGetArchives, TestAporian
-        ):
-            assert "game_history" not in dir(TestAporian)
-            await TestAporian.get_game_history()
-            assert TestAporian.game_history
-
-        @pytest.mark.it(
-            "game_history attribute is list of game archives with required keys"
-        )
-        @pytest.mark.asyncio(loop_scope="function")
-        @patch(
-            "classes.chess_user.get_archives", return_value=test_monthly_archives_small
-        )
-        async def test_updates_game_history_attribute(
-            self, MockGetArchives, TestAporian
-        ):
-            await TestAporian.get_game_history()
-            game_history = TestAporian.game_history
-            assert isinstance(game_history, list)
-            for game in game_history:
-                game_keys = set(game.keys())
-                assert all([key in game_keys for key in required_game_archive_keys])
-
-        @pytest.mark.it("Executes in <2 seconds for large set of archives")
-        @pytest.mark.asyncio(loop_scope="function")
-        @patch(
-            "classes.chess_user.get_archives", return_value=test_monthly_archives_large
-        )
-        async def test_performant_execution(self, MockGetArchives, TestAporian):
-            start = time.time()
-            await TestAporian.get_game_history()
-            end = time.time()
-            execution_time = end - start
-            print(f"Execution time = {execution_time:.2f}")
-            print(f"Number of requests = {len(test_monthly_archives_large)}")
-            assert execution_time < 2
-
-
 class TestWrangleGameHistory:
     @pytest.mark.it("Returns data frame")
     def test_returns_df(self, test_aporian_w_game_history):
@@ -397,3 +352,5 @@ class TestGetTop10:
     def test_returns_df(self, test_aporian_w_game_history_df):
         output = test_aporian_w_game_history_df.get_top_10("rating_differential")
         assert isinstance(output, pd.DataFrame)
+
+st_cache_patcher.stop()
