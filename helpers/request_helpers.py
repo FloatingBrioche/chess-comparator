@@ -317,7 +317,7 @@ async def get_archive(url, client):
         request_logger.error(f"Request error: {str(e)}, url = {url}")
 
 
-async def get_game_history(username: str) -> list:
+async def get_game_history(username: str) -> list[dict]:
     async with AsyncClient() as client:
         archives = get_archives(username)
         tasks = [get_archive(url, client) for url in archives]
@@ -331,7 +331,7 @@ async def get_game_history(username: str) -> list:
 
 
 @st.cache_data
-def return_game_history(username: str) -> list:
+def return_game_history(username: str) -> list[dict]:
     """
     Returns list of Chess.com games for given user.
     

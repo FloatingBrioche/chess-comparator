@@ -1,13 +1,18 @@
 from unittest.mock import patch, Mock, AsyncMock
+import time
+import sys
 
 import pytest
 import httpx
 from requests.exceptions import RequestException
 
+from helpers.vars import required_game_archive_keys
+
+sys.modules.pop("helpers.request_helpers", None)
 
 def mock_streamlit_cache_data(func):
     """
-    Mock the st.cache_data decorator for testing purposes.
+    Mock of the st.cache_data decorator for testing purposes.
     """
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
@@ -28,10 +33,11 @@ from helpers.request_helpers import (
     get_random_compatriot,
     get_archives,
     get_archive,
+    get_game_history,
+    return_game_history
 )
 
-
-
+### Fixtures ###
 
 @pytest.fixture
 def mock_response():
@@ -39,6 +45,8 @@ def mock_response():
     mock_response.status_code = 500
     return mock_response
 
+
+### Tests ###
 
 class TestGetProfile:
     @pytest.mark.it("Uses username parameter in get request")
@@ -205,5 +213,33 @@ class TestGetArchive:
         result = await get_archive(url, client)
         assert "Request error" in caplog.text
 
+
+    @pytest.mark.skip("Skipping tests to avoid nigh number of API calls. Tests passing as of 12-05-25")
+    class TestGetGameHistory:
+        @pytest.mark.it("Returns list of dictionaries")
+        @pytest.mark.asyncio(loop_scope="function")
+        async def test_returns_None(self):
+            result = await get_game_history("Aporian")
+            assert isinstance(result, list)
+            assert all(isinstance(game, dict) for game in result)
+
+        @pytest.mark.it("each dict (game archive) has required keys")
+        @pytest.mark.asyncio(loop_scope="function")
+        async def test_game_archive_dicts_have_required_keys(self):
+            game_history = await get_game_history("Aporian")
+            for game in game_history:
+                game_keys = set(game.keys())
+                assert all([key in game_keys for key in required_game_archive_keys])
+
+        @pytest.mark.it("Executes in <2 seconds for large set of archives")
+        @pytest.mark.asyncio(loop_scope="function")
+        async def test_performant_execution(self):
+            start = time.time()
+            game_history = await get_game_history("Aporian")
+            end = time.time()
+            execution_time = end - start
+            print(f"Execution time = {execution_time:.2f}")
+            print(f"Number of requests = {len(game_history)}")
+            assert execution_time < 2
 
 st_cache_patcher.stop()
