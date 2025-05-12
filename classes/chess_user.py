@@ -6,7 +6,7 @@ import httpx
 import numpy
 
 from helpers.loggers import data_logger
-from helpers.request_helpers import get_profile, get_stats, get_archives, get_archive, return_game_history
+from helpers.request_helpers import get_profile, get_stats, return_game_history
 
 
 class ChessUser:
@@ -242,7 +242,7 @@ class ChessUser:
         self.lowest_accuracy = lowest_accuracy
 
     def query_game_history(
-        self, fact: str, dims: list, rated_only: bool = False
+        self, fact: str, dims: list[str], rated_only: bool = False
     ) -> pd.DataFrame:
 
         q_df = self.game_history_df.copy()
