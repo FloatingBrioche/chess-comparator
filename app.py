@@ -128,7 +128,6 @@ if usage == "Check out my stats":
             everything_df = counts_df.merge(
                 accuracies_df, on=["eco", *dims], how="inner"
             ).merge(success_df, on=["eco", *dims], how="inner")
-            # everything_df = everything_df.loc[:, ~everything_df.columns.duplicated()]
             st.dataframe(everything_df)
 
     with tab_opponents:
@@ -227,7 +226,7 @@ if usage == "Check out my stats":
             if time_selection: 
                 rating_history_df = user.game_history_df[user.game_history_df['time_class'] == time_selection.lower()]['rating'].reset_index(drop=True)
                 st.line_chart(rating_history_df)
-                st.write("No te preocupes. Cada vida tiene sus altibajos.")
+                st.write("No te preocupes. Cada historia tiene sus altibajos.")
         # full game history
         if hist_selection == "My full game history":
             st.write(f"You've played {user.game_history_df.shape[0]} games. Here they are in all their glory!")
@@ -334,9 +333,9 @@ if usage == "Compare stats":
         st.caption(
             "(To see the full table, drag the bottom-right corner to expand it . . . . .    :point_up_2:)"
         )
-
-        with st.expander("And the winner is..."):
-            st.write(f"...{comparison.winner.name}!")
+        st.divider()
+        if st.button("Show me the winner!", icon=":material/trophy:"):
+            st.write(f"The winner is... {comparison.winner.name}!")
             st.markdown(
                 f"""
                         | {user.name} | {other.name}|
@@ -345,11 +344,12 @@ if usage == "Compare stats":
                         """
             )
             if comparison.winner == user:
-                st.write("Well, look at that, you formidable chess ninja!")
+                st.write("Well, look at that, you won!")
+                st.balloons()
             if comparison.winner == other:
                 st.write(
                     "Ah well, perhaps you need a little more practice. Here's a puzzle to start with."
                 )
                 puzzle: dict = get_puzzle()
                 st.markdown(f"[![Chess puzzle]({puzzle["image"]})]({puzzle["url"]})")
-            st.balloons()
+            
