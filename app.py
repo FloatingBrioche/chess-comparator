@@ -118,6 +118,18 @@ if usage == "Check out my stats":
                 .head(10)
             )
             st.dataframe(opening_accuracies_df)
+        # EVERYTHING!
+        elif openings_selection == "EVERYTHING!":
+            dims = []
+            add_select_dim_options("everything")
+            counts_df = user.query_game_history("url", ["eco", *dims])
+            accuracies_df = user.query_game_history("accuracy", ["eco", *dims])
+            success_df = user.query_game_history("result", ["eco", *dims])
+            everything_df = counts_df.merge(
+                accuracies_df, on=["eco", *dims], how="inner"
+            ).merge(success_df, on=["eco", *dims], how="inner")
+            # everything_df = everything_df.loc[:, ~everything_df.columns.duplicated()]
+            st.dataframe(everything_df)
 
     with tab_opponents:
         st.subheader(":rainbow[Opponents]")
