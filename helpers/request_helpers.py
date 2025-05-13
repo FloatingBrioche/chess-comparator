@@ -14,6 +14,7 @@ from helpers.vars import old_puzzle
 
 headers = {"user-agent": "chess-comparator"}
 
+
 @st.cache_data
 def get_profile(username: str) -> dict | None:
     """
@@ -46,6 +47,7 @@ def get_profile(username: str) -> dict | None:
 
     except RequestException as e:
         request_logger.error(f"Request error: {e}")
+
 
 @st.cache_data
 def get_stats(username: str) -> dict | None:
@@ -115,6 +117,7 @@ def get_gms() -> list:
     except RequestException as e:
         request_logger.error(f"Request error: {e}")
 
+
 @st.cache_data
 def get_compatriots(iso: str):
     """
@@ -145,7 +148,6 @@ def get_compatriots(iso: str):
 
     except RequestException as e:
         request_logger.error(f"Request error: {e}")
-
 
 
 def get_random_gm() -> str:
@@ -245,6 +247,7 @@ def get_puzzle():
     except RequestException as e:
         request_logger.error(f"Request error: {e}")
 
+
 @st.cache_data
 def get_archives(username: str) -> list | None:
     """
@@ -334,8 +337,8 @@ async def get_game_history(username: str) -> list[dict]:
 def return_game_history(username: str) -> list[dict]:
     """
     Returns list of Chess.com games for given user.
-    
+
     Function is a wrapper for the get_game_history function
     to allow for the use of st.cache_data."""
-    
+
     return asyncio.run(get_game_history(username))

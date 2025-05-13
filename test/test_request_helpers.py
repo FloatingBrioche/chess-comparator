@@ -8,22 +8,26 @@ from requests.exceptions import RequestException
 
 from helpers.vars import required_game_archive_keys
 
-sys.modules.pop("helpers.request_helpers", None)
+# to remove unpatched module if already imported
+sys.modules.pop("helpers.request_helpers", None) 
+
 
 def mock_streamlit_cache_data(func):
     """
     Mock of the st.cache_data decorator for testing purposes.
     """
+
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
+
     return wrapper
 
+# patch the st.cache_data decorator before the functions are defined
 st_cache_patcher = patch("streamlit.cache_data", mock_streamlit_cache_data)
 
 st_cache_patcher.start()
 
 from helpers.request_helpers import (
-    get_request,
     get_profile,
     get_stats,
     get_gms,
@@ -34,10 +38,11 @@ from helpers.request_helpers import (
     get_archives,
     get_archive,
     get_game_history,
-    return_game_history
+    return_game_history,
 )
 
 ### Fixtures ###
+
 
 @pytest.fixture
 def mock_response():
@@ -47,6 +52,7 @@ def mock_response():
 
 
 ### Tests ###
+
 
 class TestGetProfile:
     @pytest.mark.it("Uses username parameter in get request")
@@ -213,8 +219,9 @@ class TestGetArchive:
         result = await get_archive(url, client)
         assert "Request error" in caplog.text
 
-
-    @pytest.mark.skip("Skipping tests to avoid nigh number of API calls. Tests passing as of 12-05-25")
+    @pytest.mark.skip(
+        "Skipping tests to avoid nigh number of API calls. Tests passing as of 12-05-25"
+    )
     class TestGetGameHistory:
         @pytest.mark.it("Returns list of dictionaries")
         @pytest.mark.asyncio(loop_scope="function")
@@ -241,5 +248,6 @@ class TestGetArchive:
             print(f"Execution time = {execution_time:.2f}")
             print(f"Number of requests = {len(game_history)}")
             assert execution_time < 2
+
 
 st_cache_patcher.stop()
